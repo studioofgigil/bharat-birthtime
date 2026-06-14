@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bharat Birthtime — Your Indian Astrological Birthday</title>
+<meta name="description" content="Find your Indian astrological birthday — the day the Sun and Moon return to the exact alignment at your birth. Tithi (lunisolar) and Nakshatra (star) methods.">
+<meta property="og:title" content="Bharat Birthtime — Your Indian Astrological Birthday">
+<meta property="og:description" content="Your real birthday — the day the cosmos remembers. Find your Tithi birthday and Star birthday using the ancient Indian panchanga system.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bharat Birthtime — Find Your Indian Birthday">
+<meta name="twitter:description" content="The day the Sun and Moon return to the alignment of your birth. Tithi + Nakshatra methods. Free, all computation in browser.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --ink:#15292b;--ink2:#4d6663;--bg:#eaf2f0;--card:#fff;
+  --teal:#0e6f68;--teal2:#0a524d;--night:#06302e;--night2:#0d5a51;
+  --gold:#e8b545;--gold2:#c2912a;--line:#d4e3df;
+  --warn:#9a5b00;--warn-bg:#fcf3e0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--ink);line-height:1.65}
+
+/* ── layout wrapper with sidebar gutters ── */
+.outer{display:grid;grid-template-columns:1fr minmax(0,880px) 1fr;gap:0}
+.sidebar{padding:28px 16px 0}
+.sidebar-inner{position:sticky;top:24px}
+main{padding:0 16px 80px}
+@media(max-width:1140px){.outer{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* ── header ── */
+header{background:linear-gradient(140deg,var(--night),var(--night2) 55%,#147266);
+  color:#eef7f2;padding:52px 20px 44px;text-align:center;grid-column:1/-1}
+header .om{font-size:34px;color:var(--gold)}
+header h1{font-size:clamp(26px,5vw,42px);font-weight:normal;letter-spacing:.5px;margin:8px 0 6px}
+header p.tag{font-style:italic;color:#bcd9d0;max-width:600px;margin:0 auto;font-size:17px}
+
+/* ── cards ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:28px;box-shadow:0 2px 14px rgba(6,48,46,.07);margin-top:24px}
+.card h2{font-size:21px;color:var(--teal2);margin-bottom:4px;font-weight:normal}
+.num{color:var(--gold2);font-size:14px;letter-spacing:1px;margin-right:6px}
+.sub{color:var(--ink2);font-size:14px;margin-bottom:16px;font-family:sans-serif}
+
+/* ── form ── */
+.row{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
+.field{flex:1 1 200px;min-width:160px}
+label{display:block;font-size:12px;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--ink2);margin-bottom:5px;font-family:sans-serif;font-weight:600}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+  background:#fbfdfc;color:var(--ink);font-family:sans-serif;font-size:15px}
+input:focus,select:focus{outline:2px solid var(--teal);border-color:var(--teal)}
+.hint{font-size:12px;color:var(--ink2);margin-top:4px;font-family:sans-serif}
+.btn{display:inline-block;background:var(--teal);color:#fff;border:none;border-radius:8px;
+  padding:12px 28px;font-size:16px;cursor:pointer;font-weight:600;font-family:sans-serif}
+.btn:hover{background:var(--teal2)}
+.btn.gold{background:var(--gold2)}.btn.gold:hover{background:#a87a1c}
+.btn.ghost{background:transparent;color:var(--teal2);border:1px solid var(--teal);
+  padding:8px 14px;font-size:14px;font-family:sans-serif}
+.btn.ghost:hover{background:var(--teal);color:#fff}
+#tzrow{display:none;margin-bottom:14px}
+
+/* ── results ── */
+#results{display:none}
+.panchanga{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:14px}
+.pitem{background:#edf5ef;border-radius:10px;padding:11px 13px}
+.pitem .k{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink2);font-family:sans-serif}
+.pitem .v{font-size:16px;color:var(--teal2);font-weight:600;margin-top:2px}
+.notice{background:var(--warn-bg);border-left:4px solid var(--warn);border-radius:6px;
+  padding:10px 14px;margin-top:12px;font-size:13.5px;font-family:sans-serif;color:#6b4406}
+.divider{text-align:center;color:var(--gold);font-size:18px;margin:28px 0 4px;letter-spacing:8px}
+.yearbar{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 4px}
+.yearbar input{width:100px;text-align:center;font-size:19px;font-weight:700;color:var(--teal2)}
+.yearbar button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
+  background:#fff;cursor:pointer;font-size:17px;color:var(--teal2);font-family:sans-serif}
+.yearbar button:hover{background:var(--teal);color:#fff}
+.bday-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:16px}
+.bday{border:1px solid var(--line);border-radius:12px;padding:20px;
+  background:linear-gradient(180deg,#fbfdf8,#f1f7ec)}
+.bday h3{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--gold2);font-family:sans-serif;margin-bottom:8px}
+.bday .date{font-size:clamp(20px,3vw,28px);color:var(--teal2);font-weight:bold}
+.bday .wd{font-size:15px;color:var(--ink2);margin-top:2px}
+.bday .why{font-size:13px;color:var(--ink2);margin-top:10px;font-family:sans-serif;line-height:1.5}
+.diffstrip{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-family:sans-serif}
+.diffstrip .cols{display:grid;grid-template-columns:1fr 1fr}
+.diffstrip .col{padding:13px 16px;font-size:13px;line-height:1.55;color:var(--ink2)}
+.diffstrip .col b{color:var(--teal2);display:block;margin-bottom:3px}
+.diffstrip .col:first-child{border-right:1px solid var(--line)}
+.diffstrip .foot{background:#f0f5f2;border-top:1px solid var(--line);padding:9px 16px;
+  font-size:12.5px;color:var(--ink2);text-align:center}
+@media(max-width:540px){.diffstrip .cols{grid-template-columns:1fr}
+  .diffstrip .col:first-child{border-right:none;border-bottom:1px solid var(--line)}}
+
+/* ── countdown ── */
+.countdown-box{text-align:center;padding:18px 0 6px}
+.countdown-ring{display:inline-block;position:relative;width:120px;height:120px;margin-bottom:8px}
+.countdown-ring canvas{display:block}
+.countdown-ring .cd-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none}
+.countdown-ring .cd-n{font-size:28px;font-weight:700;color:var(--teal2);display:block;line-height:1}
+.countdown-ring .cd-l{font-size:10px;color:var(--ink2);letter-spacing:.5px;font-family:sans-serif;text-transform:uppercase}
+.countdown-pair{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+
+/* ── 10yr table ── */
+#tenyr{margin-top:18px}
+#tenyr table{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13.5px}
+#tenyr th{text-align:left;padding:7px 10px;background:#edf5ef;color:var(--teal2);
+  font-size:11px;letter-spacing:.7px;text-transform:uppercase}
+#tenyr td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:middle}
+#tenyr tr.cur td{background:#f6fbf4;font-weight:600;color:var(--teal2)}
+#tenyr .same{font-size:11px;color:var(--gold2);margin-left:6px}
+
+/* ── naming syllables ── */
+.naming{margin-top:18px;background:#fdf9ee;border:1px solid #e8ddb5;border-radius:12px;padding:16px 20px}
+.naming h4{font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold2);
+  font-family:sans-serif;margin-bottom:8px}
+.syl-row{display:flex;flex-wrap:wrap;gap:8px}
+.syl{background:#fff;border:1px solid #e0d0a0;border-radius:8px;padding:7px 14px;
+  font-size:18px;font-weight:600;color:var(--night);font-family:Georgia,serif}
+.syl small{display:block;font-size:10px;color:var(--ink2);font-family:sans-serif;font-weight:400}
+
+/* ── share card ── */
+.sharebox{margin-top:22px;border-top:1px solid var(--line);padding-top:20px;text-align:center}
+.sharebox h3{font-size:17px;color:var(--teal2);font-weight:normal;margin-bottom:10px}
+.sharebox img{max-width:280px;width:100%;border-radius:12px;
+  box-shadow:0 6px 22px rgba(6,48,46,.22);margin:10px auto;display:block}
+.share-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.sharebox input{max-width:280px;width:100%;margin:0 auto 8px;display:block;text-align:center}
+
+/* ── tooltip ── */
+[data-tip]{cursor:help;border-bottom:1px dotted var(--teal);text-decoration:none}
+#tipBox{position:fixed;z-index:9999;background:#06302e;color:#eef7f2;border-radius:9px;
+  padding:10px 15px;font-size:13px;max-width:270px;pointer-events:none;
+  box-shadow:0 4px 22px rgba(0,0,0,.4);line-height:1.5;font-family:sans-serif;
+  display:none;border:1px solid rgba(232,181,69,.35);transition:opacity .18s}
+
+/* ── monthly returns table ── */
+#monthlyNakBox{margin-top:18px;display:none}
+#monthlyNakBox table{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13.5px}
+#monthlyNakBox th{text-align:left;padding:7px 10px;background:#edf5ef;color:var(--teal2);font-size:11px;letter-spacing:.7px;text-transform:uppercase}
+#monthlyNakBox td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:middle}
+
+/* ── metonic callout ── */
+#metonicBox{display:none}
+
+/* ── location resolved ── */
+#locResolved{font-size:12px;font-family:sans-serif;color:var(--teal2);margin-top:4px;min-height:16px}
+.loc-err{color:#9a5b00!important}
+
+/* ── prose/explainer ── */
+.prose p{margin-bottom:13px;font-size:16px}
+.prose p:last-child{margin-bottom:0}
+.prose em{color:var(--gold2)}
+figure.viz{margin:16px auto 20px;max-width:420px;text-align:center}
+figure.viz svg{width:100%;height:auto}
+figure.viz figcaption{font-size:12.5px;color:var(--ink2);font-family:sans-serif;margin-top:7px;line-height:1.5}
+
+/* ── orrery ── */
+.orrery-wrap{margin:18px auto 6px;text-align:center}
+.orrery-wrap canvas{border-radius:50%;display:block;margin:0 auto}
+.orrery-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;font-family:sans-serif;font-size:13px;color:var(--ink2)}
+.orrery-controls button{padding:4px 14px;border-radius:6px;border:1px solid var(--line);
+  background:#fff;cursor:pointer;font-family:sans-serif;font-size:13px;color:var(--teal2)}
+.orrery-controls button:hover{background:var(--teal);color:#fff}
+
+/* ── moon phase strip ── */
+.phase-strip{display:flex;justify-content:space-around;align-items:flex-end;
+  flex-wrap:wrap;gap:10px;margin:16px 0 4px;padding:0 4px}
+.phase-item{text-align:center;flex:1 1 60px}
+.phase-item svg{display:block;margin:0 auto 4px}
+.phase-item span{font-size:10.5px;color:var(--ink2);font-family:sans-serif;line-height:1.3;display:block}
+
+/* ── sidebar widgets ── */
+.sw{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:18px 16px;margin-top:24px;box-shadow:0 2px 10px rgba(6,48,46,.06)}
+.sw h4{font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold2);
+  font-family:sans-serif;margin-bottom:14px}
+.sw-pitem{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:9px 0;border-bottom:1px solid var(--line);font-family:sans-serif;font-size:13px;gap:10px}
+.sw-pitem:last-child{border-bottom:none}
+.sw-pitem .k{color:var(--ink2);flex-shrink:0;padding-top:1px}
+.sw-pitem .v{color:var(--teal2);font-weight:600;text-align:right;line-height:1.45}
+
+/* ── map picker ── */
+#mapContainer{height:210px;border-radius:10px;overflow:hidden;border:1px solid var(--line);
+  background:#e8f0ee}
+.map-search-row{display:flex;gap:6px;margin-bottom:8px}
+.map-search-row input{flex:1}
+#mapStatus{font-family:sans-serif;font-size:12px;color:var(--teal2);margin-top:6px;line-height:1.4}
+
+/* ── social share ── */
+.social-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.soc-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;
+  font-family:sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;
+  border:1px solid transparent;transition:opacity .15s}
+.soc-btn:hover{opacity:.82}
+.soc-wa{background:#25D366;color:#fff}
+.soc-x{background:#000;color:#fff}
+.soc-fb{background:#1877F2;color:#fff}
+.soc-li{background:#0A66C2;color:#fff}
+.soc-cp{background:var(--teal);color:#fff}
+
+/* ── ICS name form ── */
+#icsNameBox{display:none;margin-top:10px;background:#f0f5f2;border-radius:8px;
+  padding:12px 14px;font-family:sans-serif}
+#icsNameBox label{font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px;
+  letter-spacing:.5px;text-transform:uppercase}
+#icsNameBox .ics-row{display:flex;gap:8px}
+#icsNameBox input{flex:1}
+
+/* ── interesting facts ── */
+.facts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:16px}
+.fact-card{background:linear-gradient(145deg,#f6fbf8,#edf5ef);border:1px solid var(--line);
+  border-radius:12px;padding:16px 18px}
+.fact-card .fc-icon{font-size:26px;margin-bottom:8px;display:block}
+.fact-card .fc-title{font-family:sans-serif;font-size:13px;font-weight:700;color:var(--teal2);
+  margin-bottom:5px;letter-spacing:.3px}
+.fact-card p{font-size:13.5px;color:var(--ink2);line-height:1.55;margin:0;font-family:sans-serif}
+
+footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
+  font-family:sans-serif;grid-column:1/-1}
+
+/* ── sticky nav ── */
+#stickyNav{position:sticky;top:0;z-index:500;background:var(--night);
+  display:flex;align-items:center;justify-content:center;gap:0;
+  border-bottom:1px solid rgba(232,181,69,.2);grid-column:1/-1;overflow-x:auto}
+#stickyNav a{color:#bcd9d0;font-family:sans-serif;font-size:13px;font-weight:600;
+  text-decoration:none;padding:10px 16px;white-space:nowrap;letter-spacing:.3px;
+  border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+#stickyNav a:hover,#stickyNav a.active{color:#e8b545;border-bottom-color:#e8b545}
+@media(max-width:540px){#stickyNav a{padding:10px 10px;font-size:12px}}
+
+/* ── collapsible learn sections ── */
+.learn-toggle{cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  padding:4px 0 10px;user-select:none}
+.learn-toggle .lt-arr{font-size:13px;color:var(--gold2);transition:transform .25s;font-family:sans-serif}
+.learn-toggle.open .lt-arr{transform:rotate(180deg)}
+.learn-body{display:none}
+.learn-body.open{display:block}
+
+/* ── contact ── */
+#contactSection{background:var(--night);color:#eef7f2;border-radius:0;padding:40px 24px;
+  grid-column:1/-1;text-align:center;margin-top:0}
+#contactSection h2{font-size:22px;font-weight:normal;color:#e8b545;margin-bottom:6px}
+#contactSection p{font-family:sans-serif;font-size:14px;color:#bcd9d0;max-width:520px;
+  margin:0 auto 20px;line-height:1.6}
+.contact-links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:20px}
+.contact-link{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(232,181,69,.3);border-radius:8px;padding:10px 18px;color:#e8ddb5;
+  font-family:sans-serif;font-size:13px;text-decoration:none;transition:background .15s}
+.contact-link:hover{background:rgba(232,181,69,.15);color:#fff}
+#contactSection .divider-line{border:none;border-top:1px solid rgba(255,255,255,.1);
+  max-width:400px;margin:20px auto}
+
+/* ── FAQ ── */
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-q{cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  padding:15px 0;font-weight:600;color:var(--teal2);font-family:sans-serif;font-size:15px;
+  gap:12px;user-select:none;list-style:none}
+.faq-q:hover{color:var(--teal)}
+.faq-q .arr{font-size:14px;transition:transform .25s;flex-shrink:0;color:var(--gold2)}
+.faq-q.open .arr{transform:rotate(180deg)}
+.faq-a{display:none;font-family:sans-serif;font-size:14px;color:var(--ink2);
+  padding:0 0 15px;line-height:1.65}
+.faq-a.open{display:block}
+
+/* ── Dasha ── */
+#dashaBox{margin-top:18px;display:none}
+.dasha-inner{background:#fdf9ee;border:1px solid #e8ddb5;border-radius:12px;padding:16px 20px}
+.dasha-inner h4{font-size:13px;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--gold2);font-family:sans-serif;margin-bottom:10px}
+.dasha-big{font-family:Georgia,serif;font-size:28px;font-weight:600;color:var(--night)}
+.dasha-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dasha-chip{background:#edf5ef;border:1px solid var(--line);border-radius:6px;
+  padding:4px 10px;font-family:sans-serif;font-size:12px;color:var(--ink2)}
+.dasha-chip.now{background:var(--teal);color:#fff;border-color:var(--teal2)}
+.dasha-mini{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12.5px;margin-top:12px}
+.dasha-mini th{background:#edf5ef;color:var(--teal2);font-size:10.5px;letter-spacing:.6px;
+  text-transform:uppercase;padding:5px 8px;text-align:left}
+.dasha-mini td{padding:5px 8px;border-top:1px solid var(--line)}
+.dasha-mini tr.dasha-cur td{background:#f6fbf4;font-weight:600;color:var(--teal2)}
+
+/* ── mobile panchanga pill ── */
+@media(max-width:1140px){
+  #mobilePanchanga{display:block}
+}
+#mobilePanchanga{display:none;background:var(--night);border-radius:10px;
+  padding:12px 16px;margin-top:16px;cursor:pointer}
+#mobilePanchanga .mp-head{display:flex;justify-content:space-between;align-items:center;
+  color:#e8b545;font-family:sans-serif;font-size:13px;font-weight:600}
+#mobilePanchanga .mp-body{display:none;margin-top:10px}
+#mobilePanchanga .mp-body .sw-pitem{border-color:rgba(255,255,255,.1)}
+#mobilePanchanga .mp-body .sw-pitem .k{color:#9fc5bb}
+#mobilePanchanga .mp-body .sw-pitem .v{color:#eef7f2}
+
+/* ── about ── */
+.about-grid{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px}
+.about-col{flex:1 1 220px;font-family:sans-serif;font-size:14px;color:var(--ink2);line-height:1.65}
+.about-badge{display:inline-block;background:#edf5ef;border:1px solid var(--line);
+  border-radius:6px;padding:4px 10px;font-size:12px;color:var(--teal2);margin:3px 2px}
+
+/* ── try example ── */
+.try-link{font-family:sans-serif;font-size:13px;color:var(--teal2);cursor:pointer;
+  margin-left:16px;text-decoration:underline dotted;background:none;border:none;padding:0}
+.try-link:hover{color:var(--teal)}
+
+/* ── print ── */
+@media print{
+  .sidebar{display:none!important}
+  .outer{display:block!important;grid-template-columns:1fr!important}
+  header{background:#fff!important;color:#15292b!important;padding:20px!important}
+  header h1,header p.tag{color:#15292b!important}
+  .btn,.share-row,.social-row,.orrery-wrap,.orrery-controls,.phase-strip,
+  #mapContainer,.map-search-row,#mapStatus,#icsNameBox,#monthlyNakBox,
+  #mobilePanchanga,.yearbar button,.try-link{display:none!important}
+  #results{display:block!important}
+  .card{box-shadow:none!important;border:1px solid #ccc!important;page-break-inside:avoid}
+  body{background:#fff!important}.pitem{background:#f5f5f5!important}
+}
+</style>
+</head>
+<body>
+
+<div class="outer">
+<header>
+  <div id="headerLogo" style="width:72px;height:72px;margin:0 auto 10px"></div>
+  <h1>Bharat Birthtime</h1>
+  <p class="tag">Your birthday, the way the sky remembers it — the day each year the Sun and Moon return to the alignment of your birth.</p>
+</header>
+
+<!-- STICKY NAV -->
+<nav id="stickyNav">
+  <a href="#inputSection">🗓 Calculate</a>
+  <a href="#results">📋 My Birthday</a>
+  <a href="#learnWhat">✦ Why it matters</a>
+  <a href="#faqSection">❓ FAQ</a>
+  <a href="#factsSection">💡 Facts</a>
+  <a href="#contactSection">✉ Contact</a>
+</nav>
+
+<!-- LEFT SIDEBAR -->
+<aside class="sidebar" id="leftBar">
+  <div class="sidebar-inner">
+    <div class="sw">
+      <h4>The sky today</h4>
+      <div id="todayPanel"><div style="color:#aaa;font-family:sans-serif;font-size:13px">Computing…</div></div>
+    </div>
+    <div class="sw" style="margin-top:16px">
+      <h4>Tonight's Moon</h4>
+      <div style="text-align:center;padding:6px 0">
+        <svg id="moonSvgToday" width="80" height="80" viewBox="0 0 80 80"></svg>
+        <div id="moonLabelToday" style="font-family:sans-serif;font-size:12px;color:var(--ink2);margin-top:4px"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <!-- MOBILE PANCHANGA (shows only on small screens) -->
+  <div id="mobilePanchanga">
+    <div class="mp-head" id="mpToggle">
+      <span>🌙 Today's Panchanga</span>
+      <span id="mpArrow">▼</span>
+    </div>
+    <div class="mp-body" id="mpBody">
+      <div id="mobilePanchangaItems"></div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <span id="inputSection"></span>
+  <section class="card">
+    <h2>Enter your birth details</h2>
+    <p class="sub">Two fields. That's it. All computation runs in your browser — nothing is sent anywhere.</p>
+    <form id="form" onsubmit="return false;">
+      <div class="row">
+        <div class="field">
+          <label for="dob">Birth date</label>
+          <input type="date" id="dob" required min="1900-01-01" max="2099-12-31">
+        </div>
+        <div class="field">
+          <label for="tob">Birth time (approximate)</label>
+          <input type="time" id="tob" required value="06:00">
+          <div class="hint">A 30-min window around this time is used.</div>
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink2);margin-bottom:8px;font-family:sans-serif;font-weight:600">Birth location <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink2)">(search or click the map)</span></label>
+        <div class="map-search-row">
+          <input type="text" id="mapSearch" placeholder="Type city, town, or address…">
+          <button type="button" class="btn ghost" id="mapSearchBtn">Find →</button>
+        </div>
+        <div id="mapContainer"></div>
+        <div id="mapStatus">📍 Click anywhere on the map to pin your birth location. Default: central India (23°N 80°E).</div>
+      </div>
+      <div style="margin-bottom:14px">
+        <span style="font-family:sans-serif;font-size:13px;color:var(--ink2)">Born outside India?&nbsp;
+          <button type="button" class="btn ghost" style="padding:4px 12px;font-size:12px" id="tzToggle">Set timezone</button>
+        </span>
+        <div id="tzrow" style="margin-top:10px">
+          <div class="field" style="max-width:300px">
+            <label for="tz">Your birth timezone</label>
+            <select id="tz">
+              <option value="Asia/Kolkata" selected>India (IST)</option>
+              <option value="Asia/Kathmandu">Nepal (NPT)</option>
+              <option value="Asia/Colombo">Sri Lanka</option>
+              <option value="Asia/Dhaka">Bangladesh</option>
+              <option value="Asia/Karachi">Pakistan</option>
+              <option value="Asia/Dubai">UAE / Gulf</option>
+              <option value="Asia/Singapore">Singapore / Malaysia</option>
+              <option value="Europe/London">UK</option>
+              <option value="Europe/Berlin">Central Europe</option>
+              <option value="America/New_York">US Eastern</option>
+              <option value="America/Chicago">US Central</option>
+              <option value="America/Los_Angeles">US Pacific</option>
+              <option value="America/Toronto">Canada Eastern</option>
+              <option value="Australia/Sydney">Australia East</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- convention toggle -->
+      <div style="margin-bottom:14px;font-family:sans-serif;font-size:13px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0;color:var(--ink2);font-weight:400">
+          <input type="checkbox" id="purniToggle" style="width:auto;accent-color:var(--teal)">
+          <span><strong>North India</strong> — use Purnimanta month names (Krishna paksha born)</span>
+        </label>
+      </div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px">
+        <button class="btn" id="go">Reveal my Indian birthday →</button>
+        <button type="button" class="try-link" id="tryExample">Try with an example →</button>
+        <button type="button" class="btn ghost" onclick="window.print()" style="font-size:13px;padding:9px 16px">🖨 Print</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="card" id="results">
+    <h2>Your birth panchanga</h2>
+    <div class="panchanga" id="ppanel"></div>
+    <div id="boundaryNote"></div>
+
+    <div class="divider">❖ ❖ ❖</div>
+
+    <h2 style="text-align:center">Indian birthday in</h2>
+    <div class="yearbar">
+      <button id="prevYr">‹</button>
+      <input type="number" id="year" min="1900" max="2099">
+      <button id="nextYr">›</button>
+      <button class="btn ghost" id="thisYr" style="width:auto;height:auto">This year</button>
+    </div>
+    <div class="bday-grid" id="bdays"></div>
+
+    <!-- difference strip -->
+    <div class="diffstrip">
+      <div class="cols">
+        <div class="col"><b>🌙 Tithi birthday — Moon's phase</b>The same lunar day &amp; fortnight, in the same lunar month as your birth. North &amp; West India. The rule that dates Janmashtami &amp; Diwali.</div>
+        <div class="col"><b>⭐ Star birthday — Moon's constellation</b>The day your birth nakshatra returns while the Sun is in your birth solar month. South India — Tamil Nadu, Kerala. The rule that dates Onam.</div>
+      </div>
+      <div class="foot">Both are authentic. Follow your family's regional custom — or observe both.</div>
+    </div>
+
+    <div id="resNotes"></div>
+
+    <!-- countdown -->
+    <div class="countdown-box" id="countdownBox" style="display:none">
+      <div style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase">Days to your next birthday</div>
+      <div class="countdown-pair">
+        <div>
+          <div class="countdown-ring"><canvas id="cdCanvas1" width="120" height="120"></canvas>
+            <div class="cd-num"><span class="cd-n" id="cdN1">—</span><span class="cd-l">tithi</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="countdown-ring"><canvas id="cdCanvas2" width="120" height="120"></canvas>
+            <div class="cd-num"><span class="cd-n" id="cdN2">—</span><span class="cd-l">star</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- naming syllables -->
+    <div class="naming" id="namingBox" style="display:none">
+      <h4>Naming syllables from your nakshatra &amp; pada</h4>
+      <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">Tradition prescribes starting syllables for a name based on the Moon's position at birth. Pada <span id="namingPada"></span> of <span id="namingNak"></span>:</p>
+      <div class="syl-row" id="sylRow"></div>
+      <p style="font-family:sans-serif;font-size:11.5px;color:var(--ink2);margin-top:10px">These are the classical syllables; regional traditions may vary slightly. Confirm with your jyotishi.</p>
+    </div>
+
+    <!-- dasha -->
+    <div id="dashaBox"></div>
+
+    <!-- 10-year table -->
+    <div id="tenyr" style="display:none">
+      <h3 style="font-size:16px;color:var(--teal2);font-weight:normal;margin-bottom:8px">Your birthday over 10 years</h3>
+      <table id="tenyrTable">
+        <thead><tr><th>Year</th><th>🌙 Tithi birthday</th><th>⭐ Star birthday</th></tr></thead>
+        <tbody id="tenyrBody"></tbody>
+      </table>
+    </div>
+
+    <!-- metonic callout -->
+    <div id="metonicBox"></div>
+
+    <!-- monthly nakshatra returns -->
+    <div id="monthlyNakBox"></div>
+
+    <!-- share -->
+    <div class="sharebox">
+      <h3>Share your Indian birthday 🪔</h3>
+      <input type="text" id="shareName" placeholder="Your name (optional — appears on the card)" maxlength="30">
+      <img id="cardPreview" alt="Share card preview">
+
+      <!-- primary actions -->
+      <div class="share-row" style="margin-top:12px">
+        <button class="btn gold" id="waBtn" style="font-size:15px;padding:13px 26px">
+          <span style="font-size:18px">💬</span> Share on WhatsApp
+        </button>
+        <button class="btn ghost" id="dlBtn">⬇ Download image</button>
+      </div>
+
+      <!-- social share row -->
+      <div style="font-family:sans-serif;font-size:12px;color:var(--ink2);margin-top:16px;text-align:center;letter-spacing:.5px;text-transform:uppercase">Also share on</div>
+      <div class="social-row">
+        <a class="soc-btn soc-x" id="twitterShareBtn" href="#" target="_blank" rel="noopener">𝕏 Twitter / X</a>
+        <a class="soc-btn soc-fb" id="fbShareBtn" href="#" target="_blank" rel="noopener">f Facebook</a>
+        <a class="soc-btn soc-li" id="liShareBtn" href="#" target="_blank" rel="noopener">in LinkedIn</a>
+        <button class="soc-btn soc-cp" id="copyLinkBtn">🔗 Copy link</button>
+      </div>
+
+      <!-- calendar export with name -->
+      <div style="margin-top:14px;text-align:center">
+        <button class="btn ghost" id="icsBtn" style="font-size:14px">📅 Export to Calendar (.ics)</button>
+        <div id="icsNameBox">
+          <label>Whose birthday should the calendar events be named after?</label>
+          <div class="ics-row">
+            <input type="text" id="icsPersonName" placeholder="e.g. Priya Sharma" maxlength="40">
+            <button class="btn" id="icsConfirmBtn">Save to Calendar</button>
+          </div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:6px">Generates a .ics file with both Tithi and Star birthdays for the next 5 years — importable into Google Calendar, Apple Calendar, or Outlook.</div>
+        </div>
+      </div>
+
+      <canvas id="cardCanvas" width="1080" height="1080" style="display:none"></canvas>
+    </div>
+  </section>
+
+  <!-- EXPLAINER: WHAT -->
+  <section class="card prose">
+    <h2><span class="num">WHAT</span> A birthday the sky remembers</h2>
+    <p>In the Indian calendar your birthday is not a number on a wall calendar — it is an <em>astronomical event</em>. The day you were born, the Moon stood at a precise angle from the Sun (your <em><span data-tip="Janma Tithi = birth lunar day. Janma = birth. Tithi = one of 30 lunar days, each 12° of Moon-Sun elongation. This is your 'birth tithi' — the lunar phase position at your birth moment.">janma tithi</span></em>) and against a particular field of stars (your <em><span data-tip="Janma Nakshatra = birth star. The nakshatra (lunar mansion) the Moon occupied at the moment you were born. There are 27 nakshatras, each 13°20′ of the sidereal zodiac.">janma nakshatra</span></em>). Your Indian birthday is the day each year when that same alignment returns — exactly the way Diwali, Janmashtami and Onam do.</p>
+
+    <!-- drift diagram -->
+    <figure class="viz">
+      <svg viewBox="0 0 380 148" xmlns="http://www.w3.org/2000/svg">
+        <!-- solar year bar -->
+        <text x="12" y="18" font-size="12" fill="#4d6663" font-family="sans-serif" font-weight="600">Solar year</text>
+        <rect x="12" y="24" width="348" height="20" rx="4" fill="#e8b545" opacity=".9"/>
+        <text x="188" y="38" font-size="11" fill="#5a3a00" font-family="sans-serif" text-anchor="middle" font-weight="600">365¼ days</text>
+        <!-- lunar year bar -->
+        <text x="12" y="66" font-size="12" fill="#4d6663" font-family="sans-serif" font-weight="600">Lunar year (12 months)</text>
+        <rect x="12" y="72" width="316" height="20" rx="4" fill="#0e6f68" opacity=".9"/>
+        <text x="164" y="86" font-size="11" fill="#d4f0ec" font-family="sans-serif" text-anchor="middle" font-weight="600">354 days</text>
+        <!-- gap -->
+        <rect x="328" y="72" width="32" height="20" rx="3" fill="none" stroke="#9a5b00" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="344" y="86" font-size="11" fill="#9a5b00" font-family="sans-serif" text-anchor="middle">≈ 11</text>
+        <!-- arrow -->
+        <line x1="328" y1="105" x2="12" y2="105" stroke="#9a5b00" stroke-width="1.5" marker-end="url(#arr)"/>
+        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 Z" fill="#9a5b00"/></marker></defs>
+        <text x="170" y="120" font-size="11.5" fill="#6b4406" font-family="sans-serif" text-anchor="middle">~11 days earlier each year</text>
+        <!-- leap month note -->
+        <rect x="70" y="130" width="240" height="16" rx="4" fill="#edf5ef"/>
+        <text x="190" y="141" font-size="10.5" fill="#0a524d" font-family="sans-serif" text-anchor="middle">Every ~3 years: Adhika Masa (leap month) corrects the drift</text>
+      </svg>
+      <figcaption>The lunar year is ~11 days shorter than the solar year — so your tithi birthday moves roughly 11 days earlier in the Gregorian calendar each year, until a leap month pulls it back.</figcaption>
+    </figure>
+  </section>
+
+  <!-- EXPLAINER: HOW -->
+  <section class="card prose">
+    <h2><span class="num">HOW</span> The calculation</h2>
+    <p><strong><span data-tip="A tithi is one of 30 lunar days. Each tithi = exactly 12° of the Moon gaining on the Sun. Duration varies from ~20 to ~26 clock hours — not equal to a solar day. Tithis 1–15 are Shukla (waxing), 16–30 are Krishna (waning).">Tithi</span> — the Moon's phase angle.</strong> A tithi is one of 30 lunar days, each spanning exactly 12° of the Moon's elongation from the Sun. The first 15 tithis form the bright fortnight (<em><span data-tip="Shukla Paksha = the bright, waxing fortnight — from new moon to full moon. Tithis 1–15. Considered auspicious for new beginnings.">shukla paksha</span></em>, new → full moon); the next 15 form the dark fortnight (<em><span data-tip="Krishna Paksha = the dark, waning fortnight — from full moon to new moon. Tithis 16–30. Suited for introspection and ancestral rites.">krishna paksha</span></em>). Lunar months are named by which solar transit (<em><span data-tip="Sankranti = the moment the Sun crosses from one sidereal zodiac sign (rashi) into the next. There are 12 per year. Makar Sankranti (Sun → Capricorn) is the most celebrated.">sankranti</span></em>) falls within them. Your tithi birthday each year is the day that tithi prevails at <em><span data-tip="Sunrise rule: in the classical panchanga system, a tithi or nakshatra 'belongs to' the civil day on which it is running at local sunrise. This is why birth location matters — sunrise time varies by up to 40 minutes across India.">local sunrise</span></em> — the classical <span data-tip="Panchanga (five limbs): the Indian almanac. Five elements — Vara (weekday), Tithi (lunar day), Nakshatra (star), Yoga (sun-moon sum), and Karana (half-tithi). Every festival date is derived from this system.">panchanga</span> rule.</p>
+
+    <!-- tithi wheel -->
+    <figure class="viz">
+      <svg id="vizTithi" viewBox="0 0 300 270" xmlns="http://www.w3.org/2000/svg"></svg>
+      <figcaption>Each 12° arc = one tithi. Gold = Shukla paksha (waxing), teal = Krishna paksha (waning). The white dot marks the Moon's position at your birth tithi.</figcaption>
+    </figure>
+
+    <!-- moon phase strip -->
+    <div class="phase-strip" id="phaseStrip"></div>
+    <p style="font-size:12px;color:var(--ink2);font-family:sans-serif;text-align:center;margin-bottom:14px">The Moon's visible shape through the 30 tithis — your janma tithi is the phase at your birth</p>
+
+    <p><strong><span data-tip="Nakshatra = lunar mansion. One of 27 star-clusters the Moon passes through. The full zodiac (360°) divided into 27 equal segments of 13°20′. The Moon spends roughly one day in each, completing the full cycle in ~27.3 days.">Nakshatra</span> — the Moon's star field.</strong> The <span data-tip="Sidereal zodiac: measured against fixed stars, unlike the tropical zodiac (which is measured from the Sun's equinox position). Indian astrology (Jyotisha) uses sidereal positions. The difference between tropical and sidereal is the ayanamsa (~24° currently).">sidereal</span> zodiac is divided into 27 nakshatras of 13°20′ each. Each nakshatra has 4 <span data-tip="Pada = quarter. Each nakshatra divides into 4 padas of 3°20′ each (108 total across the zodiac). The pada determines naming syllables and adds detail to the jyotisha birth chart.">padas</span>. The Moon spends roughly one day in each. Your star birthday is the day your janma nakshatra recurs while the Sun is in your birth sidereal solar month.</p>
+
+    <!-- nakshatra wheel -->
+    <figure class="viz">
+      <svg id="vizNak" viewBox="0 0 300 270" xmlns="http://www.w3.org/2000/svg"></svg>
+      <figcaption>27 nakshatra segments around the zodiac. The gold segment is your birth star. The Moon traverses all 27 in ~27.3 days.</figcaption>
+    </figure>
+
+    <!-- orrery -->
+    <div class="orrery-wrap">
+      <canvas id="orrery" width="320" height="320"></canvas>
+      <div class="orrery-controls">
+        <button id="orrPlay">⏸ Pause</button>
+        <span id="orrLabel" style="min-width:180px;text-align:center">Moon orbiting Earth through the nakshatras</span>
+        <button id="orrReset">↺ Reset</button>
+      </div>
+    </div>
+    <p style="font-family:sans-serif;font-size:12.5px;color:var(--ink2);text-align:center;margin-top:6px">Watch the Moon move through the 27 nakshatra bands (outer ring) and its phase relative to the Sun (right). Your birth moment can be pinned here once you enter your details above.</p>
+  </section>
+
+  <!-- EXPLAINER: WHY -->
+  <section class="card prose" id="learnWhat">
+    <h2><span class="num">WHY</span> Why this is profound</h2>
+    <p>The Gregorian date records how many times the Earth has completed an orbit since an administrative epoch. The tithi–nakshatra reckoning records something else: it brings you back, once a year, to the <em>same relationship between Sun, Moon and stars</em> that held at your birth. Your birth is an event in the cosmos, not a row in a register.</p>
+    <p>Every Indian sacred anniversary works the same way. Rama's birthday is Chaitra Shukla Navami, Krishna's is Shravana Krishna Ashtami, Hanuman's is a Purnima — none are Gregorian dates. Observing your janma tithi places your birthday inside the same living calendar that has carried these observances unbroken for millennia.</p>
+    <p><strong>In ritual:</strong> the janma tithi is the day for <em><span data-tip="Ayushya Homa: a fire ritual performed on the janma tithi to strengthen longevity and vitality. Offered to the birth nakshatra deity.">ayushya homa</span></em>, <em><span data-tip="Janma-tithi puja: worship performed on the birth tithi — the primary Indian birthday observance. Includes prayers, feeding Brahmins, visiting temples, and charity.">janma-tithi puja</span></em>, temple visits, and feeding others. Milestone ceremonies — <em><span data-tip="Shashti-abda-poorthi: completion of 60 years (one full Jupiter cycle). A major life milestone celebrated when the person's janma tithi and nakshatra return in the same 60-year Jovian calendar year.">shashti-abda-poorthi</span></em> (60th year), <em><span data-tip="Sahasra Chandra Darshana: 'seeing a thousand full moons' — occurs around the 80th–83rd year. Celebrated on the Purnima closest to the 1000th full moon since birth.">sahasra chandra darshana</span></em> (seeing the 1000th full moon, ~80th year) — are fixed by tithi and star, never by English date.</p>
+    <p><strong>The two rarely coincide.</strong> When your Gregorian birthday and tithi birthday fall on the same day — roughly once every 19 years (the <span data-tip="Metonic cycle: 19 solar years ≈ 235 lunar months (within 2 hours). After 19 years the Moon returns to nearly the same position relative to the Sun on the same calendar date. Named after Greek astronomer Meton of Athens (432 BCE) — but known in India long before.">Metonic cycle</span>) — it is considered especially auspicious. When they do, the cosmos and the calendar have aligned for you.</p>
+  </section>
+
+  <section class="card prose">
+    <h2><span class="num">NOTES</span> Accuracy &amp; conventions</h2>
+    <p>This page uses the <em><span data-tip="Amanta convention: lunar month ends on Amavasya (new moon). Standard in South India, Maharashtra, Gujarat. The alternative (Purnimanta, North India) ends months on Purnima (full moon) — month names shift by one for births in the Krishna paksha.">amanta</span></em> (new-moon-ending) month convention standard in South and West India. Sunrise is computed for your entered birth coordinates — enter them in the form above for maximum accuracy, especially for locations outside India. Sidereal positions use the <em><span data-tip="Lahiri ayanamsa (Chitrapaksha): the offset between the tropical and sidereal zodiac, adopted as India's national calendar standard in 1955. Currently ~23.9°. Other ayanamsas (Raman, Krishnamurti) differ slightly; Lahiri is the most widely used for panchanga computation.">Lahiri ayanamsa</span></em> (Indian national standard). In edge cases (<span data-tip="Kshaya tithi: a 'lost' tithi that doesn't prevail at sunrise on any day in a lunar month — it gets 'swallowed' between two days. Rare. Tradition uses the civil day when that tithi ends.">kshaya tithi</span>, nakshatra recurring twice, birth time near a boundary) traditions differ; a local panchanga or purohit is the final authority.</p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="card" id="faqSection">
+    <h2><span class="num">FAQ</span> Common questions</h2>
+    <div id="faqList">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>I don't know my exact birth time — how much does it matter?</span><span class="arr">▾</span></div>
+        <div class="faq-a">For most people, birth time matters only if you were born near a tithi boundary — i.e., when the Moon was transitioning from one tithi to the next. A tithi lasts between 20 and 26 hours on average, so for the majority of births, any time within a ±3 hour window gives the same result. The 30-minute window indicator at the top of the results will warn you if your birth time is near such a boundary. If it warns you, try times 30 minutes either side and see if the tithi changes.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Tithi birthday or Star birthday — which should I observe?</span><span class="arr">▾</span></div>
+        <div class="faq-a">It depends on your regional and family tradition. North and West India (UP, Rajasthan, Maharashtra, Gujarat) predominantly observe the Tithi birthday. South India — Tamil Nadu, Kerala, Karnataka, Andhra — observe the Nakshatra (Star) birthday. There is no "more correct" answer. Both are rooted in the same panchanga system; they simply track different celestial reference points. If your family does puja on a specific day each year, that is the method to follow. You may also observe both.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>My family says a different month/tithi — why?</span><span class="arr">▾</span></div>
+        <div class="faq-a">This usually comes down to the Amanta vs Purnimanta convention. This page uses Amanta (month ends at new moon), standard in South and West India. North Indian panchanga uses Purnimanta (month ends at full moon). If you were born in the waning fortnight (Krishna paksha), your masa name will differ by one month between the two systems. Use the "North India — Purnimanta" checkbox in the form to see the North Indian month name. Also, local panchanga variations and the exact moment of sunrise at your location can cause a single-tithi difference.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Is this the same as my Western astrology horoscope?</span><span class="arr">▾</span></div>
+        <div class="faq-a">No. Western astrology uses the tropical zodiac (positions relative to the Sun's equinox) and focuses primarily on the Sun sign. Indian Jyotisha uses the sidereal zodiac (positions relative to fixed stars) and places central importance on the Moon sign (rashi) and the birth nakshatra. This page computes the panchanga — the calendar dimension of Jyotisha — not a full birth chart (which additionally requires the Ascendant, all nine planet positions, and house calculations).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Why does my Indian birthday move every year in the English calendar?</span><span class="arr">▾</span></div>
+        <div class="faq-a">A lunar year is about 354 days — roughly 11 days shorter than the solar year. So your tithi birthday drifts 11 days earlier in the Gregorian calendar each year. After about 3 years, a leap month (Adhika Masa) is inserted, pulling it forward again. Over 19 years (the Metonic cycle), the cycle returns almost exactly to where it started. This is completely normal and expected — it's the same reason Eid, Diwali, and Easter all "move" relative to the Gregorian calendar each year.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How accurate is this calculation?</span><span class="arr">▾</span></div>
+        <div class="faq-a">For dates from about 1900 to 2099, the calculations should be accurate to within one tithi for the vast majority of births. The Moon position uses the 57-term Meeus series (accurate to ~0.01°) and the Lahiri ayanamsa (India's national calendar standard). Sunrise uses a 3-iteration NOAA algorithm accurate to within 1–2 minutes. For births within about 30 minutes of a tithi or nakshatra boundary, a 1-unit uncertainty remains — in those cases, your local panchangam or the astrologer who calculated your original horoscope is the final authority.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="card">
+    <h2><span class="num">ABOUT</span> About this page</h2>
+    <div class="about-grid">
+      <div class="about-col">
+        <p style="margin-bottom:10px">Bharat Birthtime makes the ancient Indian panchanga calendar accessible to anyone — no jyotishi needed for the basic question of "what is my Indian birthday this year?"</p>
+        <p><strong>All computation runs entirely in your browser.</strong> No data — birth date, time, or location — is sent to any server. The page works offline once loaded.</p>
+      </div>
+      <div class="about-col">
+        <p style="margin-bottom:8px"><strong>What powers the calculations:</strong></p>
+        <span class="about-badge">Meeus 57-term Moon series</span>
+        <span class="about-badge">Lahiri Ayanamsa (official Indian standard)</span>
+        <span class="about-badge">NOAA sunrise algorithm (3-iteration)</span>
+        <span class="about-badge">Open Location Code (Plus Code) decoder</span>
+        <span class="about-badge">OpenStreetMap / Nominatim geocoding</span>
+        <p style="margin-top:10px;font-size:12.5px">Reference: Jean Meeus, <em>Astronomical Algorithms</em>, 2nd ed., Willmann-Bell Inc., 1998.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERESTING FACTS -->
+  <section class="card" id="factsSection">
+    <h2><span class="num">✦</span> Did you know?</h2>
+    <div class="facts-grid">
+      <div class="fact-card">
+        <span class="fc-icon">🌙</span>
+        <div class="fc-title">27 stars, 30 lunar days</div>
+        <p>The Moon's sidereal period (27.3 days, nakshatras) and synodic period (29.5 days, tithis) are different — which is why there are 27 nakshatras but 30 tithis. The two cycles drift relative to each other, creating the rich variety of panchanga combinations.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">🔄</span>
+        <div class="fc-title">The Metonic cycle was known in India first</div>
+        <p>The 19-year cycle (235 lunar months ≈ 19 solar years) was built into the Vedic calendar long before the Greek astronomer Meton of Athens documented it in 432 BCE. Indian astronomers used it to time the insertion of adhika masas across 19-year cycles.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">🪔</span>
+        <div class="fc-title">Every major festival is a tithi</div>
+        <p>Diwali = Ashwina Amavasya. Janmashtami = Shravana Krishna Ashtami. Ram Navami = Chaitra Shukla Navami. Holi = Phalguna Purnima. None of these are Gregorian dates — they're recurring astronomical events, which is why they "move" every year.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">⭐</span>
+        <div class="fc-title">Your nakshatra determines your Mahadasha</div>
+        <p>In Jyotisha (Vedic astrology), the nakshatra the Moon occupied at birth determines your starting planetary period (Mahadasha) in the Vimshottari Dasha system — a 120-year cycle of 9 planetary periods that underpins all predictive astrology.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">💍</span>
+        <div class="fc-title">Nakshatra matching for marriage</div>
+        <p>Traditional Indian matchmaking uses "Ashtakoota" — 8 factors scored using birth nakshatras. Of 36 possible points, a score of 18+ is generally considered compatible. The nakshatra of both partners determines 6 of the 8 factors.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">📅</span>
+        <div class="fc-title">Adhika masa: the leap month</div>
+        <p>Every 32.5 months, the Indian calendar inserts an entire extra month to keep lunar and solar years aligned. A month becomes "Adhika" (intercalary) when no solar transit occurs within it. In 19 years, there are exactly 7 adhika masas.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">🌅</span>
+        <div class="fc-title">Sunrise determines the day</div>
+        <p>A tithi "belongs to" the day on which it is running at local sunrise — not midnight. This means your Indian birthday depends on your birth location. Two people born minutes apart across a time zone boundary may have different tithi birthdays in some years.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fc-icon">🧭</span>
+        <div class="fc-title">North vs South: same day, different name</div>
+        <p>In the Amanta system (South &amp; West India) months end at new moon. In Purnimanta (North India) they end at full moon. For someone born in the Krishna paksha (waning fortnight), the month name differs between systems — same day, different calendar label.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="card" id="contactSection">
+    <h2><span class="num">✉</span> Contact &amp; Feedback</h2>
+    <div class="about-grid">
+      <div class="about-col">
+        <p style="margin-bottom:12px">Have a question about your panchanga results, found an error, or want to share feedback? We'd love to hear from you.</p>
+        <p style="margin-bottom:6px"><strong>Email</strong><br>
+          <a class="contact-link" href="mailto:studioofgigil@gmail.com">studioofgigil@gmail.com</a></p>
+        <p style="margin-bottom:6px"><strong>WhatsApp</strong><br>
+          <a class="contact-link" href="https://wa.me/916300577983" target="_blank" rel="noopener">Chat on WhatsApp</a></p>
+        <p style="margin-bottom:6px"><strong>Instagram</strong><br>
+          <a class="contact-link" href="https://instagram.com/gigil_club" target="_blank" rel="noopener">@gigil_club</a></p>
+      </div>
+      <div class="about-col">
+        <p style="margin-bottom:10px"><strong>Before writing to us:</strong></p>
+        <ul style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);line-height:1.9;padding-left:18px">
+          <li>Make sure you've entered birth time as accurately as possible</li>
+          <li>Use the map pin for best location accuracy</li>
+          <li>Check the FAQ section — your question may be answered there</li>
+          <li>For ritual decisions, always confirm with your local panchangam or purohit</li>
+        </ul>
+        <p style="margin-top:12px;font-family:sans-serif;font-size:12.5px;color:var(--ink2)">🔒 All calculations run entirely in your browser. No personal data is ever transmitted or stored by this page.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- RIGHT SIDEBAR -->
+<aside class="sidebar" id="rightBar">
+  <div class="sidebar-inner">
+    <div class="sw" id="rightCountdown" style="display:none">
+      <h4>Next birthday</h4>
+      <div id="sideCountdown" style="text-align:center;font-family:sans-serif"></div>
+    </div>
+    <div class="sw" id="rightOrbit" style="display:none;margin-top:16px">
+      <h4>Your birth orbit</h4>
+      <canvas id="birthOrbit" width="160" height="160" style="display:block;margin:0 auto;border-radius:50%"></canvas>
+      <p id="birthOrbitLabel" style="font-family:sans-serif;font-size:11.5px;color:var(--ink2);text-align:center;margin-top:8px;line-height:1.4"></p>
+    </div>
+  </div>
+</aside>
+
+<footer>Bharat Birthtime · Lahiri ayanamsa · Amanta months · Sunrise rule · All computation in-browser · For ritual decisions confirm with your panchanga or purohit</footer>
+</div>
+
+<div id="tipBox"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+'use strict';
+/* ── ASTRONOMY ENGINE ── */
+const D2R=Math.PI/180;
+const norm360=a=>((a%360)+360)%360;
+const sinD=a=>Math.sin(a*D2R),cosD=a=>Math.cos(a*D2R);
+function toJD(y,m,d,hh=0,mm=0){if(m<=2){y-=1;m+=12}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5+(hh+mm/60)/24}
+function deltaT(jd){const t=((jd-2451545)/365.25)/100;return 62.92+32.217*t+55.89*t*t}
+const jdTT=jd=>jd+deltaT(jd)/86400;
+function sunLon(jd){const T=(jdTT(jd)-2451545)/36525;const L0=280.46646+36000.76983*T+0.0003032*T*T;const M=357.52911+35999.05029*T-0.0001537*T*T;const C=(1.914602-0.004817*T-0.000014*T*T)*sinD(M)+(0.019993-0.000101*T)*sinD(2*M)+0.000289*sinD(3*M);return norm360(L0+C-0.00569-0.00478*sinD(125.04-1934.136*T))}
+const MT=[[6288774,0,0,1,0],[1274027,2,0,-1,0],[658314,2,0,0,0],[213618,0,0,2,0],[-185116,0,1,0,0],[-114332,0,0,0,2],[58793,2,0,-2,0],[57066,2,-1,-1,0],[53322,2,0,1,0],[45758,2,-1,0,0],[-40923,0,1,-1,0],[-34720,1,0,0,0],[-30383,0,1,1,0],[15327,2,0,0,-2],[-12528,0,0,1,2],[10980,0,0,1,-2],[10675,4,0,-1,0],[10034,0,0,3,0],[8548,4,0,-2,0],[-7888,2,1,-1,0],[-6766,2,1,0,0],[-5163,1,0,-1,0],[4987,1,1,0,0],[4036,2,-1,1,0],[3994,2,0,2,0],[3861,4,0,0,0],[3665,2,0,-3,0],[-2689,0,1,-2,0],[-2602,2,0,-1,2],[2390,2,-1,-2,0],[-2348,1,0,1,0],[2236,2,-2,0,0],[-2120,0,1,2,0],[-2069,0,2,0,0],[2048,2,-2,-1,0],[-1773,2,0,1,-2],[-1595,2,0,0,2],[1215,4,-1,-1,0],[-1110,0,0,2,2],[-892,3,0,-1,0],[-810,2,1,1,0],[759,4,-1,-2,0],[-713,0,2,-1,0],[-700,2,2,-1,0],[691,2,1,-2,0],[596,2,-1,0,-2],[549,4,0,1,0],[537,0,0,4,0],[520,4,-1,0,0],[-487,1,0,-2,0],[-399,2,1,0,-2],[-381,0,0,2,-2],[351,1,1,1,0],[-340,3,0,-2,0],[330,4,0,-3,0],[327,2,-1,2,0],[-323,0,2,1,0],[299,1,1,-1,0],[294,2,0,3,0]];
+function moonLon(jd){const T=(jdTT(jd)-2451545)/36525,T2=T*T,T3=T2*T,T4=T3*T;
+const Lp=norm360(218.3164477+481267.88123421*T-0.0015786*T2+T3/538841-T4/65194000);
+const Dv=norm360(297.8501921+445267.1114034*T-0.0018819*T2+T3/545868-T4/113065000);
+const M=norm360(357.5291092+35999.0502909*T-0.0001536*T2+T3/24490000);
+const Mp=norm360(134.9633964+477198.8675055*T+0.0087414*T2+T3/69699-T4/14712000);
+const F=norm360(93.2720950+483202.0175233*T-0.0036539*T2-T3/3526000+T4/863310000);
+const E=1-0.002516*T-0.0000074*T2;let s=0;
+for(const[c,d,m,mp,f]of MT){let t=c*sinD(d*Dv+m*M+mp*Mp+f*F);if(m===1||m===-1)t*=E;else if(m===2||m===-2)t*=E*E;s+=t}
+s+=3958*sinD(119.75+131.849*T)+1962*sinD(Lp-F)+318*sinD(53.09+479264.290*T);
+return norm360(Lp+s/1e6-0.00478*sinD(125.04-1934.136*T))}
+const ayan=jd=>23.85316+0.013972*((jd-2451545)/365.25);
+const TN=['Pratipada','Dwitiya','Tritiya','Chaturthi','Panchami','Shashthi','Saptami','Ashtami','Navami','Dashami','Ekadashi','Dwadashi','Trayodashi','Chaturdashi'];
+const NAK=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
+const MASA=['Chaitra','Vaishakha','Jyeshtha','Ashadha','Shravana','Bhadrapada','Ashwina','Kartika','Margashirsha','Pausha','Magha','Phalguna'];
+const RASHI=['Mesha','Vrishabha','Mithuna','Karka','Simha','Kanya','Tula','Vrishchika','Dhanu','Makara','Kumbha','Meena'];
+const SOLAR_TA=['Chithirai','Vaikasi','Aani','Aadi','Aavani','Purattasi','Aippasi','Karthigai','Margazhi','Thai','Maasi','Panguni'];
+// nakshatra → pada → syllables
+const NAK_SYL=[['Chu','Che','Cho','La'],['Li','Lu','Le','Lo'],['A','I','U','E'],['O','Va','Vi','Vu'],['Ve','Vo','Ka','Ki'],['Ku','Gha','Ng','Chha'],['Ke','Ko','Ha','Hi'],['Hu','He','Ho','Da'],['Di','Du','De','Do'],['Ma','Mi','Mu','Me'],['Mo','Ta','Ti','Tu'],['Te','To','Pa','Pi'],['Pu','Sha','Na','Tha'],['Pe','Po','Ra','Ri'],['Ru','Re','Ro','Ta'],['Ti','Tu','Te','To'],['Na','Ni','Nu','Ne'],['No','Ya','Yi','Yu'],['Ye','Yo','Bha','Bhi'],['Bhu','Dha','Pha','Dha'],['Bhe','Bho','Ja','Ji'],['Ju','Je','Jo','Sha'],['Ga','Gi','Gu','Ge'],['Go','Sa','Si','Su'],['Se','So','Da','Di'],['Du','Tha','Jha','Da'],['De','Do','Cha','Chi']];
+// same-tithi-as major festivals
+const TITHI_FESTIVAL={1:['Gudi Padwa (Chaitra Shukla 1)'],9:['Ram Navami (Chaitra Shukla 9)'],15:['Guru Purnima (Ashadha Purnima)','Raksha Bandhan (Shravana Purnima)'],23:['Janmashtami (Shravana Krishna 8)'],25:['Mahashivaratri (Magha Krishna 14 / Chaturdashi)'],30:['Diwali (Ashwina Amavasya)']};
+const elong=jd=>norm360(moonLon(jd)-sunLon(jd));
+const tithiAt=jd=>Math.floor(elong(jd)/12)+1;
+const nakAt=jd=>Math.floor(norm360(moonLon(jd)-ayan(jd))/(360/27));
+const padaAt=jd=>Math.floor(norm360(moonLon(jd)-ayan(jd))/(360/108))%4+1;
+const sunRashiAt=jd=>Math.floor(norm360(sunLon(jd)-ayan(jd))/30);
+function tithiLbl(t){if(t===15)return'Purnima';if(t===30)return'Amavasya';return(t<=15?'Shukla ':'Krishna ')+TN[(t-1)%15]}
+function refNM(lo,hi){for(let i=0;i<50;i++){const m=(lo+hi)/2;if(elong(m)>180)lo=m;else hi=m}return(lo+hi)/2}
+function nmBefore(jd){let t=jd,e1=elong(t);for(let i=0;i<35;i++){const t0=t-1,e0=elong(t0);if(e0>e1+180)return refNM(t0,t);t=t0;e1=e0}return null}
+function nmAfter(jd){let t=jd,e0=elong(t);for(let i=0;i<35;i++){const t1=t+1,e1=elong(t1);if(e1+180<e0)return refNM(t,t1);t=t1;e0=e1}return null}
+function refCross(lo,hi,fn,tgt){for(let i=0;i<50;i++){const m=(lo+hi)/2;if(norm360(fn(m)-tgt)>180)lo=m;else hi=m}return(lo+hi)/2}
+function masaAt(jd){const s=nmBefore(jd),e=nmAfter(jd);const rs=sunRashiAt(s+.01),re=sunRashiAt(e-.01);if(rs!==re)return{index:re,name:MASA[re],adhika:false,start:s,end:e};return{index:(rs+1)%12,name:MASA[(rs+1)%12],adhika:true,start:s,end:e}}
+function srJD(y,m,d,lat,lon){let jd=toJD(y,m,d,12-lon/15);for(let i=0;i<3;i++){const T=(jdTT(jd)-2451545)/36525;const L0=norm360(280.46646+36000.76983*T);const M=357.52911+35999.05029*T;const C=(1.914602-0.004817*T)*sinD(M)+(0.019993-0.000101*T)*sinD(2*M)+0.000289*sinD(3*M);const lam=L0+C-0.00569;const eps=23.439291-0.0130042*T;const dec=Math.asin(sinD(eps)*sinD(lam))/D2R;const ra=Math.atan2(cosD(eps)*sinD(lam),cosD(lam))/D2R;let eq=norm360(L0-0.00569-norm360(ra)+360);eq=((eq+180)%360)-180;const cH=(sinD(-0.8333)-sinD(lat)*sinD(dec))/(cosD(lat)*cosD(dec));if(cH<-1||cH>1)return null;const H=Math.acos(cH)/D2R;jd=toJD(y,m,d,0)+(12-lon/15-eq*4/60-H*4/60)/24}return jd}
+function tzOff(z,u){const dtf=new Intl.DateTimeFormat('en-US',{timeZone:z,hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});const g={};for(const p of dtf.formatToParts(new Date(u)))g[p.type]=p.value;return(Date.UTC(+g.year,+g.month-1,+g.day,(+g.hour)%24,+g.minute,+g.second)-u)/3600000}
+function jdFL(y,m,d,hh,mm,z){let off=tzOff(z,Date.UTC(y,m-1,d,hh,mm));for(let i=0;i<2;i++)off=tzOff(z,Date.UTC(y,m-1,d,hh,mm)-off*3600000);return 2440587.5+(Date.UTC(y,m-1,d,hh,mm)-off*3600000)/86400000}
+function locFJD(jd,z){const u=(jd-2440587.5)*86400000;const off=tzOff(z,u);const l=new Date(u+off*3600000);return{year:l.getUTCFullYear(),month:l.getUTCMonth()+1,day:l.getUTCDate(),hh:l.getUTCHours(),mm:l.getUTCMinutes(),weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][l.getUTCDay()]}}
+// TZ → representative lat/lon for sunrise
+const TZ_LOC={'Asia/Kolkata':[23,80],'Asia/Kathmandu':[27.7,85.3],'Asia/Colombo':[7,81],'Asia/Dhaka':[23.8,90.4],'Asia/Karachi':[24.9,67.1],'Asia/Dubai':[25.2,55.3],'Asia/Singapore':[1.35,103.8],'Europe/London':[51.5,-0.1],'Europe/Berlin':[52.5,13.4],'America/New_York':[40.7,-74],'America/Chicago':[41.9,-87.6],'America/Los_Angeles':[34,-118.2],'America/Toronto':[43.7,-79.4],'Australia/Sydney':[-33.9,151.2]};
+
+/* ── OPEN LOCATION CODE (Plus Code) decoder ── */
+const OLC_A='23456789CFGHJMPQRVWX';
+function olcDecode(code){
+  const c=code.replace(/\+/g,'').toUpperCase();
+  let lat=-90,lon=-180,latH=20,lonH=20;
+  for(let i=0;i<5&&i*2+1<c.length;i++){
+    const ci=OLC_A.indexOf(c[i*2]),cj=OLC_A.indexOf(c[i*2+1]);
+    if(ci<0||cj<0)break;
+    latH/=20;lonH/=20;lat+=ci*latH*20;lon+=cj*lonH*20;
+    if(i===4){lat+=latH/2;lon+=lonH/2}
+  }
+  return{lat:Math.round(lat*1e6)/1e6,lng:Math.round(lon*1e6)/1e6};
+}
+function parseLocation(s){
+  s=s.trim();
+  if(!s)return{ok:false};
+  // "lat, lon" pair
+  const cm=s.match(/^(-?\d+\.?\d*)\s*[,\s]\s*(-?\d+\.?\d*)$/);
+  if(cm)return{lat:+cm[1],lng:+cm[2],ok:true};
+  // Plus Code (contains +)
+  if(s.includes('+')){
+    const code=s.split(/\s+/)[0].toUpperCase();
+    if(/^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]*/i.test(code)){
+      try{const d=olcDecode(code);if(d.lat>=-90&&d.lat<=90&&d.lng>=-180&&d.lng<=180)return{lat:d.lat,lng:d.lng,ok:true}}catch(e){}
+    }
+  }
+  return{ok:false};
+}
+
+/* ── English nakshatra meanings ── */
+const NAK_EN=[
+  'The Horse Riders (β Arietis)','The Bearer / Womb (41 Arietis)','The Pleiades (Alcyone)',
+  'Aldebaran — The Red One','The Deer\'s Head (λ Orionis)','Betelgeuse — The Storm Drop',
+  'The Return of Light (Pollux)','The Nourisher (δ Cancri)','The Entwiner (ε Hydrae)',
+  'The Throne / Regulus','The Couch, Former (δ Leonis)','The Couch, Latter (β Leonis)',
+  'The Hand (δ Corvi)','Spica — The Brilliant One','Arcturus — The Sword / Independent',
+  'The Forked Branch (α Librae)','Following Radha (δ Scorpii)','Antares — The Elder',
+  'The Root (GC region, λ Scorpii)','The Invincible, Former (δ Sagittarii)','The Invincible, Latter (σ Sagittarii)',
+  'Vega — The Ear / Listening','The Richest (α Delphini)','The 100 Physicians (λ Aquarii)',
+  'Fortunate Feet, Former (α Pegasi)','Fortunate Feet, Latter (γ Pegasi)','The Wealthy / Full (ζ Piscium)'
+];
+const VARA_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function birthProfile(y,m,d,hh,mm,lat,lon,z){const jd=jdFL(y,m,d,hh,mm,z);const masa=masaAt(jd);const t=tithiAt(jd);const n=nakAt(jd);const sr=sunRashiAt(jd);return{jd,masa,tithi:t,tithiLbl:tithiLbl(t),nakshatra:n,nakName:NAK[n],pada:padaAt(jd),solarRashi:sr,solarRashiName:RASHI[sr],solarTA:SOLAR_TA[sr]}}
+function tithiBday(prof,yr,lat,lon,z){const tEnd=toJD(yr+1,2,1);let nm=nmAfter(toJD(yr-1,12,1));const months=[];while(nm!==null&&nm<tEnd){const nx=nmAfter(nm+1);if(!nx)break;const rs=sunRashiAt(nm+.01),re=sunRashiAt(nx-.01);const ad=rs===re;months.push({start:nm,end:nx,index:ad?(rs+1)%12:re,adhika:ad});nm=nx}
+let cands=months.filter(mo=>mo.index===prof.masa.index&&mo.adhika===prof.masa.adhika);let note=null;
+if(!cands.length&&prof.masa.adhika){cands=months.filter(mo=>mo.index===prof.masa.index&&!mo.adhika);note='Born in Adhika masa — not in this year, so nija (regular) masa used.'}
+const res=[];
+for(const mo of cands){const sl=locFJD(mo.start,z);let found=null;
+for(let k=0;k<=32;k++){const dl=locFJD(jdFL(sl.year,sl.month,sl.day,0,0,z)+k+.5,z);const sr=srJD(dl.year,dl.month,dl.day,lat,lon);if(!sr||sr<mo.start||sr>=mo.end)continue;if(tithiAt(sr)===prof.tithi){found={...dl,kshaya:false};break}}
+if(!found){const tgt=norm360(prof.tithi*12);for(let k=0;k<31;k++){const a=elong(mo.start+k),b=elong(mo.start+k+1);if(norm360(a-tgt)>180&&norm360(b-tgt)<=180){found={...locFJD(refCross(mo.start+k,mo.start+k+1,elong,tgt),z),kshaya:true};break}}}
+if(found)res.push({...found,masaName:MASA[mo.index],adhika:mo.adhika,inYear:found.year===yr})}
+const f=res.filter(r=>r.inYear);return{results:f.length?f:res,note}}
+function nakBday(prof,yr,lat,lon,z){const tL=prof.solarRashi*30;const sid=jd=>norm360(sunLon(jd)-ayan(jd));let entry=null,prev=sid(toJD(yr,1,1));const t1=toJD(yr+1,1,10);
+for(let t=toJD(yr,1,1)+2;t<t1;t+=2){const cur=sid(t);if(norm360(prev-tL)>180&&norm360(cur-tL)<=180){entry=refCross(t-2,t,sid,tL);break}prev=cur}
+if(!entry)return{results:[],note:'Solar month not found.'};
+const exit=refCross(entry+25,entry+35,sid,norm360(tL+30));const el=locFJD(entry,z);const out=[],seen=new Set();
+for(let k=0;k<=33;k++){const dl=locFJD(jdFL(el.year,el.month,el.day,12,0,z)+k,z);const sr=srJD(dl.year,dl.month,dl.day,lat,lon);if(!sr||sr<entry||sr>=exit)continue;if(nakAt(sr)===prof.nakshatra){const key=dl.year+'-'+dl.month+'-'+dl.day;if(!seen.has(key)){seen.add(key);out.push(dl)}}}
+let note=null;if(out.length===2)note='Nakshatra recurs twice in this solar month — many families observe the second.';
+return{results:out,note}}
+
+/* ── UI helpers ── */
+const $=id=>document.getElementById(id);
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const fmt=r=>r.day+' '+MONTHS[r.month-1]+' '+r.year;
+const fmtS=r=>r.day+' '+MONTHS[r.month-1].slice(0,3);
+
+$('tzToggle').addEventListener('click',()=>{
+  const row=$('tzrow');
+  row.style.display=row.style.display==='none'?'block':'none';
+});
+
+let PROF=null,LAT=23,LON=80,ZONE='Asia/Kolkata',LAST={year:null,tb:null,nb:null};
+
+/* ── Leaflet map picker ── */
+let leafletMap=null,leafletMarker=null;
+function initLeafletMap(){
+  if(leafletMap||typeof L==='undefined')return;
+  leafletMap=L.map('mapContainer',{zoomControl:true,attributionControl:false}).setView([20.5937,78.9629],4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(leafletMap);
+  L.control.attribution({prefix:'<a href="https://openstreetmap.org">© OpenStreetMap</a>'}).addTo(leafletMap);
+  leafletMap.on('click',e=>setMapPin(e.latlng.lat,e.latlng.lng));
+}
+function setMapPin(lat,lng){
+  LAT=Math.round(lat*10000)/10000;LON=Math.round(lng*10000)/10000;
+  if(leafletMarker){leafletMarker.setLatLng([lat,lng])}
+  else{
+    leafletMarker=L.marker([lat,lng],{draggable:true,title:'Birth location'}).addTo(leafletMap);
+    leafletMarker.on('dragend',e=>{const p=e.target.getLatLng();setMapPin(p.lat,p.lng)});
+  }
+  $('mapStatus').textContent='📍 '+LAT.toFixed(4)+'°, '+LON.toFixed(4)+'° — drag the pin to refine';
+  $('mapStatus').style.color='var(--teal2)';
+}
+async function searchMapLocation(){
+  const q=$('mapSearch').value.trim();if(!q)return;
+  $('mapStatus').textContent='Searching…';$('mapStatus').style.color='var(--ink2)';
+  try{
+    const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=1',{headers:{'Accept-Language':'en'}});
+    const d=await r.json();
+    if(d.length){
+      const{lat,lon,display_name}=d[0];
+      leafletMap.setView([+lat,+lon],12);
+      setMapPin(+lat,+lon);
+      const shortName=display_name.split(',').slice(0,3).join(',');
+      $('mapStatus').textContent='📍 '+shortName;
+    }else{$('mapStatus').textContent='Location not found — try a different spelling or click the map.';$('mapStatus').style.color='var(--warn)'}
+  }catch(e){$('mapStatus').textContent='Search failed — click the map to set location.';$('mapStatus').style.color='var(--warn)'}
+}
+$('mapSearchBtn').addEventListener('click',searchMapLocation);
+$('mapSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchMapLocation()}});
+
+// Init map after Leaflet loads
+if(typeof L!=='undefined')initLeafletMap();
+else window.addEventListener('load',initLeafletMap);
+
+$('go').addEventListener('click',()=>{
+  const dob=$('dob').value;if(!dob){alert('Enter your birth date.');return}
+  const tob=$('tob').value||'06:00';
+  ZONE=$('tz').value;
+  // if no pin set, use TZ default
+  if(!leafletMarker){const ll=TZ_LOC[ZONE]||[23,80];LAT=ll[0];LON=ll[1];
+    $('mapStatus').textContent='Using default: '+LAT+'°N '+LON+'°E (central India). Search above or click map for accuracy.';
+  }
+  const[y,m,d]=dob.split('-').map(Number);const[hh,mm]=tob.split(':').map(Number);
+  const tot=hh*60+mm+15;
+  try{
+    PROF=birthProfile(y,m,d,Math.floor(tot/60)%24,tot%60,LAT,LON,ZONE);
+  }catch(err){
+    alert('Could not compute birth profile: '+err.message+'\nTry adjusting the birth date or time.');return;
+  }
+  saveState();
+  // boundary check
+  const jdS=jdFL(y,m,d,hh,mm,ZONE),jdE=jdS+30/1440;
+  const tS=tithiAt(jdS),tE=tithiAt(jdE),nS=nakAt(jdS),nE=nakAt(jdE);
+  let bn='';
+  if(tS!==tE)bn+='<div class="notice">⚠ Tithi changes within your 30-min window ('+tithiLbl(tS)+' → '+tithiLbl(tE)+'). If you know the exact birth time enter it to remove the ambiguity.</div>';
+  if(nS!==nE)bn+='<div class="notice">⚠ Nakshatra changes within your 30-min window ('+NAK[nS]+' → '+NAK[nE]+').</div>';
+  $('boundaryNote').innerHTML=bn;
+  renderPanchanga();
+  $('year').value=new Date().getFullYear();
+  renderYear();
+  $('results').style.display='block';
+  $('results').scrollIntoView({behavior:'smooth'});
+  pinOrrery();
+  drawBirthOrbit();
+  buildMonthlyNak();
+  checkMetonic();
+});
+function pit(k,v,tip=''){return'<div class="pitem"'+(tip?' data-tip="'+tip.replace(/"/g,"'")+'"':'')+'>'+
+  '<div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}
+
+function renderYear(){
+  if(!PROF)return;
+  const yr=Math.max(1900,Math.min(2099,parseInt($('year').value)||new Date().getFullYear()));
+  $('year').value=yr;
+  const tb=tithiBday(PROF,yr,LAT,LON,ZONE);
+  const nb=nakBday(PROF,yr,LAT,LON,ZONE);
+  LAST={year:yr,tb,nb};
+  let html='';
+  html+='<div class="bday"><h3>🌙 Tithi birthday (lunisolar)</h3>';
+  if(tb.results.length){for(const r of tb.results){html+='<div class="date">'+fmt(r)+'</div><div class="wd">'+r.weekday+'</div>'}
+    const r0=tb.results[0];
+    html+='<div class="why">'+(r0.adhika?'Adhika ':'')+r0.masaName+' · '+PROF.tithiLbl+(r0.kshaya?' (kshaya)':'')+'</div>';
+    const same=TITHI_FESTIVAL[PROF.tithi];if(same)html+='<div class="why" style="color:var(--gold2)">✦ Same tithi as: '+same.join(', ')+'</div>';
+  }else html+='<div class="why">No match in '+yr+' — month may span year boundary. Try adjacent year.</div>';
+  html+='</div>';
+  html+='<div class="bday"><h3>⭐ Star birthday (nakshatra)</h3>';
+  if(nb.results.length){for(const r of nb.results){html+='<div class="date">'+fmt(r)+'</div><div class="wd">'+r.weekday+'</div>'}
+    html+='<div class="why">'+PROF.nakName+' in '+PROF.solarRashiName+' ('+PROF.solarTA+') solar month</div>';
+  }else html+='<div class="why">Nakshatra not at sunrise in this solar month for '+yr+'.</div>';
+  html+='</div>';
+  $('bdays').innerHTML=html;
+  let notes='';if(tb.note)notes+='<div class="notice">'+tb.note+'</div>';if(nb.note)notes+='<div class="notice">'+nb.note+'</div>';
+  $('resNotes').innerHTML=notes;
+  drawCountdown(yr,tb,nb);
+  showDasha();
+  buildTenYear(yr);
+  showNaming();
+  drawCard();
+  updateSocialLinks();
+}
+$('prevYr').addEventListener('click',()=>{$('year').value=+$('year').value-1;renderYear()});
+$('nextYr').addEventListener('click',()=>{$('year').value=+$('year').value+1;renderYear()});
+$('thisYr').addEventListener('click',()=>{$('year').value=new Date().getFullYear();renderYear()});
+$('year').addEventListener('change',renderYear);
+$('shareName').addEventListener('input',()=>drawCard());
+
+/* ── countdown rings ── */
+function drawCountdown(yr,tb,nb){
+  const now=new Date();const todayJD=2440587.5+now/86400000;
+  function ring(canvasId,numId,results,color){
+    const cv=$(canvasId);if(!cv)return;
+    const ctx=cv.getContext('2d');const W=120;ctx.clearRect(0,0,W,W);
+    // find next occurrence in this or next year
+    let days=null;
+    for(const r of results){
+      const d=jdFL(r.year,r.month,r.day,6,0,ZONE);
+      if(d>todayJD){days=Math.ceil(d-todayJD);break}
+    }
+    if(days===null){// try next year
+      const res2=yr<2099?(canvasId==='cdCanvas1'?tithiBday(PROF,yr+1,LAT,LON,ZONE):nakBday(PROF,yr+1,LAT,LON,ZONE)):null;
+      if(res2&&res2.results.length){const d=jdFL(res2.results[0].year,res2.results[0].month,res2.results[0].day,6,0,ZONE);days=Math.ceil(d-todayJD)}
+    }
+    const frac=days!==null?Math.max(0,1-days/365):0;
+    ctx.beginPath();ctx.arc(W/2,W/2,50,0,Math.PI*2);ctx.strokeStyle='#e0ece9';ctx.lineWidth=10;ctx.stroke();
+    if(days!==null){ctx.beginPath();ctx.arc(W/2,W/2,50,-Math.PI/2,-Math.PI/2+frac*Math.PI*2,false);ctx.strokeStyle=color;ctx.lineWidth=10;ctx.lineCap='round';ctx.stroke()}
+    $(numId).textContent=days!==null?days:'—';
+  }
+  ring('cdCanvas1','cdN1',tb.results,'#0e6f68');
+  ring('cdCanvas2','cdN2',nb.results,'#c2912a');
+  $('countdownBox').style.display='block';
+  // sidebar — always finds the NEXT upcoming occurrence (looks ahead to next year if needed)
+  function nextOcc(results,isTithi){
+    for(const r of results){
+      const d=jdFL(r.year,r.month,r.day,6,0,ZONE);if(d>todayJD)return{days:Math.ceil(d-todayJD),r}
+    }
+    // birthday already passed this year — look at yr+1
+    if(yr<2099){
+      const r2=isTithi?tithiBday(PROF,yr+1,LAT,LON,ZONE):nakBday(PROF,yr+1,LAT,LON,ZONE);
+      if(r2&&r2.results.length){const r=r2.results[0];const d=jdFL(r.year,r.month,r.day,6,0,ZONE);if(d>todayJD)return{days:Math.ceil(d-todayJD),r}}
+    }
+    return null;
+  }
+  const tN=nextOcc(tb.results,true),nN=nextOcc(nb.results,false);
+  let h2='';
+  if(tN)h2+='<div style="margin-bottom:12px"><div style="font-size:30px;font-weight:700;color:var(--teal2);line-height:1">'+tN.days+'</div><div style="font-size:11px;color:var(--ink2);margin-top:2px">days away</div><div style="font-size:12px;font-weight:600;color:var(--ink2);margin-top:3px">🌙 '+fmtS(tN.r)+' '+tN.r.year+' · '+tN.r.weekday.slice(0,3)+'</div></div>';
+  if(nN)h2+='<div><div style="font-size:30px;font-weight:700;color:var(--gold2);line-height:1">'+nN.days+'</div><div style="font-size:11px;color:var(--ink2);margin-top:2px">days away</div><div style="font-size:12px;font-weight:600;color:var(--ink2);margin-top:3px">⭐ '+fmtS(nN.r)+' '+nN.r.year+' · '+nN.r.weekday.slice(0,3)+'</div></div>';
+  if(h2){$('sideCountdown').innerHTML=h2;$('rightCountdown').style.display='block'}
+}
+
+/* ── 10-year table ── */
+function buildTenYear(baseYr){
+  if(!PROF)return;
+  const tbody=$('tenyrBody');tbody.innerHTML='';
+  const curYr=new Date().getFullYear();
+  for(let yr=baseYr-2;yr<=baseYr+7;yr++){
+    if(yr<1900||yr>2099)continue;
+    const tb=tithiBday(PROF,yr,LAT,LON,ZONE);
+    const nb=nakBday(PROF,yr,LAT,LON,ZONE);
+    const tr=document.createElement('tr');
+    if(yr===curYr)tr.className='cur';
+    const tdR=tb.results[0],ndR=nb.results[0];
+    // check if tithi and star fall same day
+    let same='';
+    if(tdR&&ndR&&tdR.year===ndR.year&&tdR.month===ndR.month&&tdR.day===ndR.day)same='<span class="same">⭐ same day!</span>';
+    tr.innerHTML='<td>'+(yr===curYr?'<strong>'+yr+'</strong>':yr)+(yr===curYr?' ←':'')+'</td>'+'<td>'+(tdR?fmtS(tdR)+' '+tdR.weekday.slice(0,3):'—')+'</td>'+'<td>'+(ndR?fmtS(ndR)+' '+ndR.weekday.slice(0,3):'—')+same+'</td>';
+    tbody.appendChild(tr);
+  }
+  $('tenyr').style.display='block';
+}
+
+/* ── naming syllables ── */
+function showNaming(){
+  if(!PROF)return;
+  const syl=NAK_SYL[PROF.nakshatra];const pada=PROF.pada-1;
+  $('namingNak').textContent=PROF.nakName;$('namingPada').textContent=PROF.pada;
+  // show the prescribed pada syllable prominently, others dimmed
+  let h='';
+  syl.forEach((s,i)=>{
+    const active=i===pada;
+    h+='<div class="syl" style="'+(active?'border-color:var(--gold);background:#fffbe8':'opacity:.45')+'">'
+      +s+'<small>pada '+(i+1)+(active?' ← yours':''+'</small></div>');
+  });
+  $('sylRow').innerHTML=h;$('namingBox').style.display='block';
+}
+
+/* ── share card ── */
+function drawCard(){
+  if(!PROF||!LAST.tb)return;
+  const cv=$('cardCanvas'),ctx=cv.getContext('2d');
+  const W=1080,H=1080;
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#06302e');g.addColorStop(.55,'#0d5a51');g.addColorStop(1,'#0a4742');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.translate(W/2,H/2);ctx.strokeStyle='rgba(232,181,69,.12)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(0,0,468,0,Math.PI*2);ctx.stroke();
+  for(let i=0;i<27;i++){const a=i/27*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*452,Math.sin(a)*452);ctx.lineTo(Math.cos(a)*468,Math.sin(a)*468);ctx.stroke()}
+  ctx.restore();
+  ctx.strokeStyle='#e8b545';ctx.lineWidth=3;ctx.strokeRect(42,42,W-84,H-84);
+  ctx.strokeStyle='rgba(232,181,69,.3)';ctx.lineWidth=1;ctx.strokeRect(54,54,W-108,H-108);
+  ctx.textAlign='center';
+  ctx.fillStyle='#e8b545';ctx.font='80px Georgia';ctx.fillText('ॐ',W/2,160);
+  ctx.font='600 28px sans-serif';ctx.fillStyle='#cfe5da';ctx.fillText('I N D I A N   B I R T H D A Y   ·   '+LAST.year,W/2,220);
+  let y=295;const name=$('shareName').value.trim();
+  if(name){ctx.font='italic 54px Georgia';ctx.fillStyle='#fff';ctx.fillText(name,W/2,y);y+=62}
+  y+=40;ctx.font='26px sans-serif';ctx.fillStyle='#9fc5bb';ctx.fillText('🌙  TITHI BIRTHDAY',W/2,y);y+=80;
+  ctx.font='bold 74px Georgia';ctx.fillStyle='#fff';
+  const td=LAST.tb.results[0];ctx.fillText(td?fmt(td):'—',W/2,y);y+=50;
+  ctx.font='34px Georgia';ctx.fillStyle='#cfe5da';ctx.fillText(td?td.weekday:'',W/2,y);y+=54;
+  ctx.font='32px Georgia';ctx.fillStyle='#e8b545';ctx.fillText((PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:PROF.masa.name)+' · '+PROF.tithiLbl,W/2,y);
+  y+=60;ctx.fillStyle='rgba(232,181,69,.55)';ctx.font='28px Georgia';ctx.fillText('❖',W/2,y);
+  y+=56;ctx.font='26px sans-serif';ctx.fillStyle='#9fc5bb';ctx.fillText('⭐  STAR BIRTHDAY  ·  '+PROF.nakName.toUpperCase(),W/2,y);y+=62;
+  ctx.font='bold 50px Georgia';ctx.fillStyle='#fff';
+  const nd=LAST.nb.results;ctx.fillText(nd.length?nd.map(fmtS).join('  &  ')+' '+LAST.year:'—',W/2,y);
+  ctx.font='24px sans-serif';ctx.fillStyle='#8db5ab';ctx.fillText('Computed the Vedic way · Bharat Birthtime',W/2,H-88);
+  $('cardPreview').src=cv.toDataURL('image/png');
+}
+function shareText(){const td=LAST.tb.results[0];const nd=LAST.nb.results;let t='🪔 My Indian birthday '+LAST.year+': '+(td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:'')+' '+PROF.tithiLbl:'—');if(nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;t+='. Find yours ✨ bharat-birthtime';return t}
+$('waBtn').addEventListener('click',async()=>{if(!LAST.tb)return;const text=shareText();try{const blob=await new Promise(res=>$('cardCanvas').toBlob(res,'image/png'));const file=new File([blob],'indian-birthday-'+LAST.year+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});return}}catch(e){if(e&&e.name==='AbortError')return}window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank')});
+$('dlBtn').addEventListener('click',()=>{if(!LAST.tb)return;const a=document.createElement('a');a.download='indian-birthday-'+LAST.year+'.png';a.href=$('cardCanvas').toDataURL('image/png');a.click()});
+
+/* ── SVG helpers ── */
+function shade(c0,c1,k){const h=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];const a=h(c0),b=h(c1);return'#'+a.map((v,i)=>Math.round(v+(b[i]-v)*k).toString(16).padStart(2,'0')).join('')}
+function wedge(cx,cy,r1,r2,a0,a1){
+  const p=(r,a)=>[cx+r*Math.cos(a*D2R),cy+r*Math.sin(a*D2R)];
+  const[x0,y0]=p(r2,a0),[x1,y1]=p(r2,a1),[x2,y2]=p(r1,a1),[x3,y3]=p(r1,a0);
+  const lg=(a1-a0)>180?1:0;
+  return'M'+x0.toFixed(1)+','+y0.toFixed(1)+' A'+r2+','+r2+' 0 '+lg+' 1 '+x1.toFixed(1)+','+y1.toFixed(1)+' L'+x2.toFixed(1)+','+y2.toFixed(1)+' A'+r1+','+r1+' 0 '+lg+' 0 '+x3.toFixed(1)+','+y3.toFixed(1)+'Z'}
+
+/* tithi wheel */
+function buildTithiWheel(){
+  const svg=$('vizTithi');if(!svg)return;
+  const cx=150,cy=138,r1=66,r2=100;let s='';
+  for(let i=0;i<30;i++){
+    const a0=-i*12,a1=-(i+1)*12;const shukla=i<15;
+    const k=shukla?i/14:(29-i)/14;
+    const col=shukla?shade('#fbeec4','#e8b545',k):shade('#1d7a6e','#082e2a',k);
+    s+='<path d="'+wedge(cx,cy,r1,r2,a1,a0)+'" fill="'+col+'" stroke="#fff" stroke-width="1.2"/>';
+  }
+  // birth tithi marker (highlighted wedge demo — tithi 8)
+  const ta=-7*12,tb2=-8*12;
+  s+='<path d="'+wedge(cx,cy,r1,r2,tb2,ta)+'" fill="#fff" fill-opacity=".3" stroke="#fff" stroke-width="2"/>';
+  s+='<text x="'+(cx+r2+8)+'" y="'+(cy+4)+'" font-size="10.5" fill="#4d6663" font-family="sans-serif">Amavasya ●</text>';
+  s+='<text x="'+(cx-r2-8)+'" y="'+(cy+4)+'" font-size="10.5" fill="#4d6663" font-family="sans-serif" text-anchor="end">● Purnima</text>';
+  s+='<text x="'+cx+'" y="'+(cy-r2-10)+'" font-size="11" fill="#9a7a1c" font-family="sans-serif" text-anchor="middle">Shukla paksha ↑ waxing</text>';
+  s+='<text x="'+cx+'" y="'+(cy+r2+16)+'" font-size="11" fill="#0a524d" font-family="sans-serif" text-anchor="middle">Krishna paksha ↓ waning</text>';
+  s+='<text x="'+cx+'" y="'+(cy-3)+'" font-size="13" fill="#15292b" font-family="sans-serif" text-anchor="middle" font-weight="600">30 tithis</text>';
+  s+='<text x="'+cx+'" y="'+(cy+14)+'" font-size="11" fill="#4d6663" font-family="sans-serif" text-anchor="middle">× 12° elongation each</text>';
+  const ma=-7.5*12*D2R;
+  s+='<circle cx="'+(cx+83*Math.cos(ma)).toFixed(1)+'" cy="'+(cy+83*Math.sin(ma)).toFixed(1)+'" r="8" fill="#fff" stroke="#0a524d" stroke-width="2.5"/>';
+  s+='<text x="'+(cx+83*Math.cos(ma)).toFixed(1)+'" y="'+(cy+83*Math.sin(ma)+3.5).toFixed(1)+'" font-size="8" fill="#0a524d" font-family="sans-serif" text-anchor="middle">☽</text>';
+  svg.innerHTML=s;
+}
+
+/* nakshatra wheel */
+function buildNakWheel(){
+  const svg=$('vizNak');if(!svg)return;
+  const cx=150,cy=138,r1=66,r2=100;let s='';
+  const highlights=[3,21]; // Rohini, Shravana — well-known
+  for(let i=0;i<27;i++){
+    const a0=-90+i*(360/27),a1=-90+(i+1)*(360/27);
+    let col=i%2?'#0e6f68':'#11857c';
+    if(highlights.includes(i))col='#e8b545';
+    s+='<path d="'+wedge(cx,cy,r1,r2,a0,a1)+'" fill="'+col+'" stroke="#fff" stroke-width="1"/>';
+  }
+  // labels for 4 cardinal nakshatras
+  [[0,'Ashwini','start'],[6,'Punarvasu','start'],[13,'Chitra','end'],[20,'Uttara Ashadha','end']].forEach(([i,name,a])=>{
+    const ang=(-90+(i+.5)*(360/27))*D2R;
+    s+='<text x="'+(cx+(r2+11)*Math.cos(ang)).toFixed(1)+'" y="'+(cy+(r2+11)*Math.sin(ang)+3).toFixed(1)+'" font-size="9" fill="#4d6663" font-family="sans-serif" text-anchor="'+a+'">'+name+'</text>';
+  });
+  s+='<text x="'+cx+'" y="'+(cy-3)+'" font-size="13" fill="#15292b" font-family="sans-serif" text-anchor="middle" font-weight="600">27 nakshatras</text>';
+  s+='<text x="'+cx+'" y="'+(cy+14)+'" font-size="11" fill="#4d6663" font-family="sans-serif" text-anchor="middle">× 13°20′ each — ≈ 1 day each</text>';
+  const a=(-90+3.5*(360/27))*D2R;
+  s+='<circle cx="'+(cx+83*Math.cos(a)).toFixed(1)+'" cy="'+(cy+83*Math.sin(a)).toFixed(1)+'" r="8" fill="#fff" stroke="#9a7a1c" stroke-width="2.5"/>';
+  s+='<text x="'+(cx+83*Math.cos(a)).toFixed(1)+'" y="'+(cy+83*Math.sin(a)+3.5).toFixed(1)+'" font-size="8" fill="#9a7a1c" font-family="sans-serif" text-anchor="middle">★</text>';
+  svg.innerHTML=s;
+}
+
+/* moon phase strip */
+function buildPhaseStrip(){
+  const strip=$('phaseStrip');if(!strip)return;
+  const phases=[
+    [0,'Amavasya (New Moon)'],
+    [4,'Chaturthi (waxing)'],
+    [7,'Saptami'],
+    [11,'Ekadashi'],
+    [15,'Purnima (Full Moon)'],
+    [19,'Ekadashi (waning)'],
+    [23,'Chaturthi'],
+    [27,'Trayodashi'],
+  ];
+  let h='';
+  phases.forEach(([t,lbl])=>{
+    const frac=t/30;
+    h+='<div class="phase-item">'+moonPhaseSVG(frac,40)+'<span>'+lbl.replace(' (','\n(')+'</span></div>';
+  });
+  strip.innerHTML=h;
+}
+function moonPhaseSVG(frac,r){
+  // frac 0=new, 0.5=full, 1=new
+  const W=r*2+4,H=r*2+4,cx=W/2,cy=H/2;
+  const illuminated=frac<=0.5?frac*2:2-frac*2;
+  const waxing=frac<=0.5;
+  const dark='#1a3533',light='#f5e9b0',rim='#0e6f68';
+  let s='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+dark+'"/>';
+  if(illuminated>0.001&&illuminated<0.999){
+    const rx=r*illuminated,ry=r;
+    const x=cx;
+    // lit half: always a semicircle on one side
+    s+='<clipPath id="cp'+Math.round(frac*100)+'"><rect x="'+cx+'" y="0" width="'+r+'" height="'+W+'" /></clipPath>';
+    s+='<ellipse cx="'+x+'" cy="'+cy+'" rx="'+rx.toFixed(1)+'" ry="'+ry+'" fill="'+(waxing?light:dark)+'" clip-path="url(#cp'+Math.round(frac*100)+')" />';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+(waxing?light:dark)+'" stroke-width="0"/>';
+    // lit semicircle
+    s+='<path d="M '+cx+' '+(cy-r)+' A '+r+' '+r+' 0 0 '+(waxing?'1':'0')+' '+cx+' '+(cy+r)+' Z" fill="'+light+'"/>';
+    s+='<ellipse cx="'+x+'" cy="'+cy+'" rx="'+rx.toFixed(1)+'" ry="'+ry+'" fill="'+(waxing?dark:light)+'"/>';
+  }else if(illuminated>=0.999){s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+light+'" />';}
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+rim+'" stroke-width="1.5"/>';
+  s+='</svg>';return s;
+}
+
+/* ── ORRERY (animated canvas) ── */
+let orrAF=null,orrAngle=0,orrBirthAngle=null,orrPlaying=true;
+function drawOrrery(){
+  const cv=$('orrery');if(!cv)return;
+  const ctx=cv.getContext('2d');const W=320,H=320,cx=W/2,cy=H/2;
+  // starfield (once)
+  if(!cv._stars){cv._stars=Array.from({length:80},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3}))}
+  ctx.fillStyle='#071e1c';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(220,240,235,.5)';
+  for(const s of cv._stars)ctx.fillRect(s.x,s.y,s.r,s.r);
+  // nakshatra ring
+  const R_NAK=130;
+  for(let i=0;i<27;i++){
+    const a0=-Math.PI/2+i/27*Math.PI*2,a1=-Math.PI/2+(i+1)/27*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx+R_NAK*Math.cos(a0),cy+R_NAK*Math.sin(a0));
+    ctx.arc(cx,cy,R_NAK,a0,a1);ctx.closePath();
+    // check if Moon is in this segment
+    const moonNak=Math.floor(norm360(orrAngle/(Math.PI*2)*360)/(360/27));
+    ctx.fillStyle=moonNak===i?'rgba(232,181,69,.45)':'rgba(14,111,104,.25)';
+    ctx.fill();ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.8;ctx.stroke();
+  }
+  // ring border
+  ctx.beginPath();ctx.arc(cx,cy,R_NAK,0,Math.PI*2);ctx.strokeStyle='rgba(232,181,69,.3)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,R_NAK-14,0,Math.PI*2);ctx.strokeStyle='rgba(232,181,69,.15)';ctx.lineWidth=1;ctx.stroke();
+  // nakshatra label (current)
+  const curNak=Math.floor(norm360(orrAngle/(Math.PI*2)*360)/(360/27));
+  $('orrLabel').textContent='Moon in '+NAK[curNak];
+  // Sun direction beam (rightward, fixed)
+  const sunAng=0;
+  const grd=ctx.createLinearGradient(cx,cy,cx+90,cy);
+  grd.addColorStop(0,'rgba(232,181,69,0)');grd.addColorStop(1,'rgba(232,181,69,.55)');
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+120,cy);ctx.strokeStyle=grd;ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx+125,cy,8,0,Math.PI*2);
+  const sg=ctx.createRadialGradient(cx+125,cy,1,cx+125,cy,8);
+  sg.addColorStop(0,'#ffe88a');sg.addColorStop(1,'rgba(232,181,69,0)');
+  ctx.fillStyle=sg;ctx.fill();
+  // Earth
+  const eg=ctx.createRadialGradient(cx-1,cy-1,1,cx,cy,14);
+  eg.addColorStop(0,'#4db8a8');eg.addColorStop(1,'#0a524d');
+  ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.strokeStyle='rgba(14,111,104,.6)';ctx.lineWidth=2;ctx.stroke();
+  // Moon orbit path
+  const R_ORB=80;
+  ctx.beginPath();ctx.arc(cx,cy,R_ORB,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;ctx.stroke();
+  // birth moment pin
+  if(orrBirthAngle!==null){
+    const bx=cx+R_ORB*Math.cos(orrBirthAngle),by=cy+R_ORB*Math.sin(orrBirthAngle);
+    ctx.beginPath();ctx.arc(bx,by,5,0,Math.PI*2);ctx.fillStyle='rgba(232,181,69,.8)';ctx.fill();
+    ctx.beginPath();ctx.arc(bx,by,5,0,Math.PI*2);ctx.strokeStyle='#e8b545';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  // Moon
+  const mx=cx+R_ORB*Math.cos(-Math.PI/2+orrAngle),my=cy+R_ORB*Math.sin(-Math.PI/2+orrAngle);
+  const moonPhase=norm360(orrAngle/(Math.PI*2)*360)/360;
+  ctx.beginPath();ctx.arc(mx,my,9,0,Math.PI*2);ctx.fillStyle='#f0e8c0';ctx.fill();
+  // phase shadow on moon dot
+  ctx.save();ctx.beginPath();ctx.arc(mx,my,9,0,Math.PI*2);ctx.clip();
+  const ph=moonPhase<=0.5?moonPhase*2:2-moonPhase*2;
+  const w=9*(1-ph);
+  ctx.fillStyle='rgba(6,48,46,.85)';
+  if(moonPhase<=0.25||moonPhase>0.75){ctx.fillRect(mx,my-9,9,18)}
+  else{ctx.fillRect(mx-9,my-9,9,18)}
+  ctx.beginPath();ctx.arc(mx+(moonPhase<=0.5?0:0),my,w,0,Math.PI*2);
+  ctx.fillStyle=moonPhase<=0.5?'rgba(6,48,46,.85)':'#f0e8c0';ctx.fill();
+  ctx.restore();
+  ctx.beginPath();ctx.arc(mx,my,9,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1;ctx.stroke();
+  if(orrPlaying){orrAngle=(orrAngle+0.012)%(Math.PI*2)}
+  orrAF=requestAnimationFrame(drawOrrery);
+}
+$('orrPlay').addEventListener('click',()=>{orrPlaying=!orrPlaying;$('orrPlay').textContent=orrPlaying?'⏸ Pause':'▶ Play'});
+$('orrReset').addEventListener('click',()=>{orrAngle=0});
+function pinOrrery(){
+  if(!PROF)return;
+  // pin birth nakshatra angle
+  const nakFrac=(PROF.nakshatra+(PROF.pada-1)/4+0.125)/27;
+  orrBirthAngle=-Math.PI/2+nakFrac*Math.PI*2;
+}
+drawOrrery();
+
+/* ── today's panchanga (sidebar + live) ── */
+function buildTodayPanel(){
+  const now=new Date();const jd=2440587.5+now/86400000;
+  const t=tithiAt(jd);const n=nakAt(jd);const m=masaAt(jd);
+  const vaar=['Ravi','Soma','Mangala','Budha','Guru','Shukra','Shani'];
+  const dayIdx=now.getDay();
+  const vn=vaar[dayIdx]+'vara';
+  const en=VARA_EN[dayIdx];
+  const tLbl=tithiLbl(t);
+  const tEn=t===15?'Full Moon':t===30?'New Moon':t<=15?'Waxing day '+t:' Waning day '+(t-15);
+  const paksha=t<=15?'Shukla (bright fortnight)':'Krishna (dark fortnight)';
+  const items=[
+    ['Vara',vn+' <span style="color:var(--ink2);font-weight:400;font-size:13px">('+en+')</span>'],
+    ['Masa',m.name+(m.adhika?' (Adhika)':'')],
+    ['Tithi',tLbl+' <span style="color:var(--ink2);font-weight:400;font-size:13px">'+tEn+'</span>'],
+    ['Nakshatra',NAK[n]+' <span style="color:var(--ink2);font-weight:400;font-size:13px">'+NAK_EN[n].split('(')[0].trim()+'</span>']
+  ];
+  $('todayPanel').innerHTML=items.map(([k,v])=>'<div class="sw-pitem"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>').join('');
+  // moon svg
+  const el=norm360(moonLon(jd)-sunLon(jd));
+  drawMoonSVG($('moonSvgToday'),el,38);
+  const phaseEn=t===15?'Full Moon':t===30?'New Moon':t<15?'Waxing Crescent':'Waning '+(['','Crescent','Crescent','Gibbous','Gibbous','Gibbous','Crescent','Crescent'][Math.round((t-15)/3.5)%8]||'Moon');
+  $('moonLabelToday').innerHTML=tLbl+'<br><span style="font-size:11px;color:var(--ink2)">'+phaseEn+' · '+(el<180?'Waxing':'Waning')+'</span>';
+}
+function drawMoonSVG(svg,elongDeg,r){
+  if(!svg)return;
+  const frac=elongDeg/360;
+  const W=r*2+2,H=r*2+2,cx=W/2,cy=H/2;
+  const waxing=frac<0.5;const illu=frac<=0.5?frac*2:2-frac*2;
+  let s='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#1a3533"/>';
+  if(illu>0.01&&illu<0.99){
+    const ha=r*illu;
+    s+='<path d="M '+cx+' '+(cy-r)+' A '+r+' '+r+' 0 0 '+(waxing?1:0)+' '+cx+' '+(cy+r)+' Z" fill="#f5e9b0"/>';
+    s+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+ha.toFixed(1)+'" ry="'+r+'" fill="'+(waxing?'#1a3533':'#f5e9b0')+'"/>';
+  }else if(illu>=0.99)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#f5e9b0"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#0e6f68" stroke-width="1.5"/>';
+  svg.innerHTML=s;
+}
+
+/* ── birth orbit sidebar ── */
+function drawBirthOrbit(){
+  if(!PROF)return;
+  const cv=$('birthOrbit');if(!cv)return;
+  const ctx=cv.getContext('2d');const W=160,H=160,cx=W/2,cy=H/2;
+  ctx.fillStyle='#071e1c';ctx.fillRect(0,0,W,H);
+  // nak ring
+  const R=65;
+  for(let i=0;i<27;i++){
+    const a0=-Math.PI/2+i/27*Math.PI*2,a1=-Math.PI/2+(i+1)/27*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,a0,a1);ctx.closePath();
+    ctx.fillStyle=i===PROF.nakshatra?'rgba(232,181,69,.5)':'rgba(14,111,104,.22)';ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=.6;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle='rgba(232,181,69,.25)';ctx.lineWidth=1;ctx.stroke();
+  // orbit
+  ctx.beginPath();ctx.arc(cx,cy,40,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1;ctx.stroke();
+  // Earth
+  ctx.beginPath();ctx.arc(cx,cy,7,0,Math.PI*2);ctx.fillStyle='#4db8a8';ctx.fill();
+  // birth Moon
+  const ba=-Math.PI/2+((PROF.nakshatra+(PROF.pada-1)/4+0.125)/27)*Math.PI*2;
+  const bx=cx+40*Math.cos(ba),by=cy+40*Math.sin(ba);
+  ctx.beginPath();ctx.arc(bx,by,6,0,Math.PI*2);ctx.fillStyle='#f5e9b0';ctx.fill();
+  ctx.beginPath();ctx.arc(bx,by,6,0,Math.PI*2);ctx.strokeStyle='#e8b545';ctx.lineWidth=1.5;ctx.stroke();
+  // label
+  const nak_a=ba+0.15;
+  ctx.fillStyle='#e8b545';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+  ctx.fillText('★',cx+54*Math.cos(ba),cy+54*Math.sin(ba)+3);
+  $('birthOrbitLabel').textContent='Moon in '+PROF.nakName+' at your birth';
+  $('rightOrbit').style.display='block';
+}
+
+/* ── Monthly nakshatra returns ── */
+function buildMonthlyNak(){
+  if(!PROF)return;
+  const todayJD=2440587.5+Date.now()/86400000;
+  const results=[];
+  for(let day=0;day<400&&results.length<12;day++){
+    const jd=todayJD+day;
+    const loc=locFJD(jd,ZONE);
+    const sr=srJD(loc.year,loc.month,loc.day,LAT,LON);
+    if(sr&&nakAt(sr)===PROF.nakshatra)results.push(loc);
+  }
+  if(!results.length){$('monthlyNakBox').style.display='none';return}
+  const todayLoc=locFJD(todayJD,ZONE);
+  let h='<h3 style="font-size:16px;color:var(--teal2);font-weight:normal;margin-bottom:6px">Monthly <span data-tip="Each month when the Moon returns to your birth nakshatra at sunrise. South Indian tradition (especially Tamil, Kerala) observes this as a monthly mini-birthday — called the janma nakshatra day.">Nakshatra Returns</span> — '+PROF.nakName+'</h3>';
+  h+='<p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">The Moon returns to your birth star every ~27 days. South Indian tradition observes this monthly as a mini-birthday. Next 12 occurrences:</p>';
+  h+='<table><thead><tr><th>#</th><th>Date</th><th>Day</th><th>Tithi at sunrise</th></tr></thead><tbody>';
+  results.forEach((r,idx)=>{
+    const sr=srJD(r.year,r.month,r.day,LAT,LON);
+    const tl=sr?tithiLbl(tithiAt(sr)):'';
+    const isToday=r.year===todayLoc.year&&r.month===todayLoc.month&&r.day===todayLoc.day;
+    const days=Math.round(jdFL(r.year,r.month,r.day,6,0,ZONE)-todayJD);
+    h+='<tr'+(isToday?' style="background:#f6fbf4;font-weight:600;color:var(--teal2)"':idx%2?' style="background:#f9fdfc"':'')+'>';
+    h+='<td>'+(''+days+'d away')+'</td>';
+    h+='<td>'+r.day+' '+MONTHS[r.month-1]+' '+r.year+'</td>';
+    h+='<td>'+r.weekday.slice(0,3)+'</td>';
+    h+='<td>'+tl+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  $('monthlyNakBox').innerHTML=h;
+  $('monthlyNakBox').style.display='block';
+}
+
+/* ── Metonic cycle check ── */
+function checkMetonic(){
+  if(!PROF)return;
+  const dob=$('dob').value;if(!dob)return;
+  const[,dm,dd]=dob.split('-').map(Number);
+  const curYr=new Date().getFullYear();
+  const matches=[];
+  for(let yr=curYr;yr<=curYr+57&&matches.length<3;yr++){
+    const tb=tithiBday(PROF,yr,LAT,LON,ZONE);
+    for(const r of tb.results){if(r.month===dm&&r.day===dd){matches.push(yr);break}}
+  }
+  if(matches.length){
+    const yrs=matches.join(' · ');
+    $('metonicBox').innerHTML='<div class="notice" style="background:#fffbe8;border-color:var(--gold2);color:#5a3a00;margin-top:12px">✦ <strong>Metonic alignment</strong> — Your tithi birthday falls on your Gregorian birthday in <strong>'+yrs+'</strong>. This rare coincidence (~once every 19 years) is considered especially auspicious in Indian tradition.</div>';
+    $('metonicBox').style.display='block';
+  }else{
+    $('metonicBox').style.display='none';
+  }
+}
+
+/* ── Calendar export (.ics) with name ── */
+function exportICS(personName){
+  if(!PROF||!LAST.tb)return;
+  const name=personName||'';
+  const namePrefix=name?name+' — ':'';
+  const pad=n=>String(n).padStart(2,'0');
+  const dt=(r,offset=0)=>{const d=new Date(r.year,r.month-1,r.day+(offset||0));return d.getFullYear()+''+pad(d.getMonth()+1)+''+pad(d.getDate())};
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Bharat Birthtime//EN\r\nCALSCALE:GREGORIAN\r\n';
+  ics+='X-WR-CALNAME:'+(name?name+"'s Indian Birthdays":'Indian Birthdays')+'\r\n';
+  const curYr=new Date().getFullYear();
+  for(let yr=curYr;yr<curYr+5;yr++){
+    const tb=tithiBday(PROF,yr,LAT,LON,ZONE);
+    const nb=nakBday(PROF,yr,LAT,LON,ZONE);
+    for(const r of tb.results){
+      const masa=(r.adhika?'Adhika ':'')+r.masaName;
+      ics+='BEGIN:VEVENT\r\nUID:tithi-'+dt(r)+'-'+yr+'@bharat-birthtime\r\n';
+      ics+='DTSTART;VALUE=DATE:'+dt(r)+'\r\nDTEND;VALUE=DATE:'+dt(r,1)+'\r\n';
+      ics+='SUMMARY:🌙 '+namePrefix+'Janma Tithi — '+masa+' '+PROF.tithiLbl+'\r\n';
+      ics+='DESCRIPTION:Indian birthday – Tithi method\\nName: '+(name||'—')+'\\nMasa: '+masa+'\\nTithi: '+PROF.tithiLbl+'\\nNakshatra: '+PROF.nakName+'\r\n';
+      ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR\r\nEND:VEVENT\r\n';
+    }
+    for(const r of nb.results){
+      ics+='BEGIN:VEVENT\r\nUID:star-'+dt(r)+'-'+yr+'@bharat-birthtime\r\n';
+      ics+='DTSTART;VALUE=DATE:'+dt(r)+'\r\nDTEND;VALUE=DATE:'+dt(r,1)+'\r\n';
+      ics+='SUMMARY:⭐ '+namePrefix+'Janma Nakshatra — '+PROF.nakName+'\r\n';
+      ics+='DESCRIPTION:Indian birthday – Star method\\nName: '+(name||'—')+'\\nNakshatra: '+PROF.nakName+'\\nSolar month: '+PROF.solarRashiName+' ('+PROF.solarTA+')\r\n';
+      ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR\r\nEND:VEVENT\r\n';
+    }
+  }
+  ics+='END:VCALENDAR';
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(name?name.replace(/\s+/g,'-').toLowerCase()+'-':'')+'indian-birthday.ics';a.click();
+}
+// ICS button: toggle name form
+$('icsBtn').addEventListener('click',()=>{
+  if(!LAST.tb){alert('Click "Reveal my Indian birthday →" first.');return}
+  const box=$('icsNameBox');
+  box.style.display=box.style.display==='block'?'none':'block';
+  if(box.style.display==='block')$('icsPersonName').focus();
+});
+$('icsConfirmBtn').addEventListener('click',()=>{
+  exportICS($('icsPersonName').value.trim());
+  $('icsNameBox').style.display='none';
+});
+
+/* ── Social sharing ── */
+function shareText(){
+  const td=LAST.tb&&LAST.tb.results[0];const nd=LAST.nb&&LAST.nb.results;
+  let t='🪔 My Indian birthday '+LAST.year+': ';
+  if(td)t+=fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+td.masaName+' '+PROF.tithiLbl;
+  if(nd&&nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;
+  t+=' ✨ Find yours at Bharat Birthtime';
+  return t;
+}
+function updateSocialLinks(){
+  if(!LAST.tb)return;
+  const text=shareText();
+  const url=encodeURIComponent(window.location.href);
+  const enc=encodeURIComponent(text);
+  $('twitterShareBtn').href='https://twitter.com/intent/tweet?text='+enc;
+  $('fbShareBtn').href='https://www.facebook.com/sharer/sharer.php?u='+url+'&quote='+enc;
+  $('liShareBtn').href='https://www.linkedin.com/sharing/share-offsite/?url='+url;
+}
+$('copyLinkBtn').addEventListener('click',()=>{
+  const text=LAST.tb?shareText():window.location.href;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=$('copyLinkBtn');const orig=btn.textContent;
+    btn.textContent='✓ Copied!';setTimeout(()=>btn.textContent=orig,2000);
+  }).catch(()=>prompt('Copy this text:',text));
+});
+
+/* ── Tooltip system (1.5 s hover delay) ── */
+(function(){
+  const box=$('tipBox');let timer=null;
+  document.addEventListener('mouseover',e=>{
+    const t=e.target.closest('[data-tip]');if(!t)return;
+    clearTimeout(timer);
+    timer=setTimeout(()=>{
+      box.textContent=t.dataset.tip;
+      box.style.display='block';
+    },1500);
+  });
+  document.addEventListener('mousemove',e=>{
+    if(box.style.display==='block'){
+      let x=e.clientX+16,y=e.clientY+10;
+      if(x+280>window.innerWidth)x=e.clientX-280;
+      box.style.left=x+'px';box.style.top=y+'px';
+    }
+  });
+  document.addEventListener('mouseout',e=>{
+    const from=e.target.closest('[data-tip]');
+    const to=(e.relatedTarget||null)?.closest?.('[data-tip]');
+    if(from&&from!==to){clearTimeout(timer);box.style.display='none'}
+  });
+})();
+
+/* ── Header logo: nakshatra wheel SVG ── */
+function buildHeaderLogo(){
+  const el=$('headerLogo');if(!el)return;
+  const cx=36,cy=36,R=33,r2=30,r1=18;
+  let paths='';
+  for(let i=0;i<27;i++){
+    const a0=(-90+i*(360/27))*D2R, a1=(-90+(i+1)*(360/27))*D2R;
+    const x0=(cx+r2*Math.cos(a0)).toFixed(1),y0=(cy+r2*Math.sin(a0)).toFixed(1);
+    const x1=(cx+r2*Math.cos(a1)).toFixed(1),y1=(cy+r2*Math.sin(a1)).toFixed(1);
+    const x2=(cx+r1*Math.cos(a1)).toFixed(1),y2=(cy+r1*Math.sin(a1)).toFixed(1);
+    const x3=(cx+r1*Math.cos(a0)).toFixed(1),y3=(cy+r1*Math.sin(a0)).toFixed(1);
+    const col=i%3===0?'#e8b545':i%3===1?'#0e6f68':'#117068';
+    paths+=`<path d="M${x0},${y0} A${r2},${r2} 0 0,1 ${x1},${y1} L${x2},${y2} A${r1},${r1} 0 0,0 ${x3},${y3}Z" fill="${col}" opacity="${i%3===0?'.9':'.7'}" stroke="#06302e" stroke-width=".7"/>`;
+  }
+  // orbit, earth, moon crescent
+  const svg=`<svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${cx}" cy="${cy}" r="${R+1}" fill="none" stroke="rgba(232,181,69,.25)" stroke-width="1.2"/>
+    ${paths}
+    <circle cx="${cx}" cy="${cy}" r="${r1-2}" fill="#0a3a38"/>
+    <circle cx="${cx}" cy="${cy}" r="10" fill="#c8ddd8" opacity=".9"/>
+    <circle cx="${cx+3}" cy="${cy-2}" r="8.5" fill="#0a3a38"/>
+    <circle cx="${cx}" cy="${cy}" r="${r1-2}" fill="none" stroke="rgba(232,181,69,.5)" stroke-width="1"/>
+  </svg>`;
+  el.innerHTML=svg;
+}
+
+/* ── Vimshottari Dasha ── */
+const DASHA_P=['Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'];
+const DASHA_Y=[7,20,6,10,7,18,16,19,17]; // total = 120
+// Each nakshatra maps to one of the 9 dashas in repeating order (0..8, 0..8, 0..8)
+function showDasha(){
+  if(!PROF)return;
+  const nakIdx=PROF.nakshatra;
+  const dashaIdx=nakIdx%9;
+  // Moon's fractional position within the nakshatra (0-1) from pada
+  const nakFrac=((PROF.pada-1)/4)+0.125; // pada midpoint approximation
+  const totalYr=DASHA_Y[dashaIdx];
+  const remainYr=(1-nakFrac)*totalYr;
+  // Build 120-year sequence starting from birth
+  const birthJD=PROF.jd;
+  let seqStart=birthJD-nakFrac*totalYr*365.25; // start of current dasha at birth
+  const todayJD=2440587.5+Date.now()/86400000;
+  let rows='',curIdx=-1;
+  for(let i=0;i<9;i++){
+    const di=(dashaIdx+i)%9;
+    const yrs=DASHA_Y[di];
+    const seqEnd=seqStart+yrs*365.25;
+    const isCur=todayJD>=seqStart&&todayJD<seqEnd;
+    if(isCur)curIdx=i;
+    const sl=locFJD(seqStart,ZONE),el=locFJD(seqEnd,ZONE);
+    rows+=`<tr${isCur?' class="dasha-cur"':''}><td><strong>${DASHA_P[di]}</strong></td><td>${yrs} yrs</td><td>${sl.year}</td><td>${el.year}</td></tr>`;
+    seqStart=seqEnd;
+  }
+  // Which dasha are we currently in?
+  let curDasha=''; let curEnd='';
+  let s2=PROF.jd-nakFrac*totalYr*365.25;
+  for(let i=0;i<9;i++){
+    const di=(dashaIdx+i)%9;
+    const e=s2+DASHA_Y[di]*365.25;
+    if(todayJD>=s2&&todayJD<e){curDasha=DASHA_P[di];curEnd=locFJD(e,ZONE).year;break}
+    s2=e;
+  }
+  const html=`<div class="dasha-inner">
+    <h4>Vimshottari <span data-tip="Dasha: a planetary period system in Vedic astrology. Vimshottari = '120-year' cycle of 9 planets. Your birth nakshatra determines the starting planet. These periods are used for life-phase timing in Jyotisha.">Dasha</span> — birth period & life sequence</h4>
+    <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">Your birth nakshatra <strong>${PROF.nakName}</strong> places you in the <span data-tip="${DASHA_P[dashaIdx]} Mahadasha lasts ${totalYr} years. The exact remaining period depends on the Moon's position within the nakshatra at the moment of birth."><strong>${DASHA_P[dashaIdx]} Mahadasha</strong></span> at birth (${totalYr} year period). ${curDasha?'<strong>Current Mahadasha: '+curDasha+'</strong> (runs until ~'+curEnd+').':''}</p>
+    <table class="dasha-mini"><thead><tr><th>Planet</th><th>Duration</th><th>From</th><th>To</th></tr></thead><tbody>${rows}</tbody></table>
+    <p style="font-size:11.5px;font-family:sans-serif;color:var(--ink2);margin-top:8px">Exact sub-periods (antardashas) require precise birth time and a full Jyotisha reading. Consult a jyotishi for life-event timing.</p>
+  </div>`;
+  $('dashaBox').innerHTML=html;$('dashaBox').style.display='block';
+}
+
+/* ── FAQ toggle ── */
+function toggleFaq(el){
+  const a=el.nextElementSibling;
+  const open=a.classList.contains('open');
+  document.querySelectorAll('.faq-a.open').forEach(x=>x.classList.remove('open'));
+  document.querySelectorAll('.faq-q.open').forEach(x=>x.classList.remove('open'));
+  if(!open){a.classList.add('open');el.classList.add('open')}
+}
+
+/* ── Mobile panchanga toggle ── */
+$('mpToggle').addEventListener('click',()=>{
+  const b=$('mpBody');const open=b.style.display==='block';
+  b.style.display=open?'none':'block';
+  $('mpArrow').textContent=open?'▼':'▲';
+});
+
+/* ── Try Example ── */
+$('tryExample').addEventListener('click',()=>{
+  $('dob').value='1990-09-15';$('tob').value='10:30';
+  if(typeof L!=='undefined'&&leafletMap){
+    leafletMap.setView([28.6139,77.2090],10);
+    setMapPin(28.6139,77.2090);
+    $('mapSearch').value='New Delhi, India';
+    $('mapStatus').textContent='📍 New Delhi, India (example)';
+  }
+  $('go').click();
+});
+
+/* ── Purnimanta display toggle ── */
+$('purniToggle').addEventListener('change',()=>{
+  if(PROF)renderPanchanga();
+});
+function renderPanchanga(){
+  if(!PROF)return;
+  const isPurni=$('purniToggle').checked;
+  let masaName=PROF.masa.name,adhika=PROF.masa.adhika;
+  // Purnimanta: Krishna paksha (tithi>15) — shift masa one ahead
+  if(isPurni&&PROF.tithi>15){
+    const nextIdx=(PROF.masa.index+1)%12;
+    masaName=MASA[nextIdx];adhika=false; // adhika handling simplified
+  }
+  const purn=PROF.tithi>15&&!isPurni?' <small style="color:#6d8a85">(purnimanta: '+MASA[(PROF.masa.index+1)%12]+')</small>':'';
+  $('ppanel').innerHTML=
+    pit('Masa',(adhika?'Adhika ':'')+masaName+purn,'Masa = lunar month. '+(adhika?'Adhika = intercalary leap month.':'Named by the solar transit that falls within it.'))
+   +pit('Tithi',PROF.tithiLbl,'Tithi = one of 30 lunar days (12° of Moon–Sun elongation each). Your birth tithi is '+PROF.tithiLbl+'.')
+   +pit('Nakshatra',PROF.nakName+' · pada '+PROF.pada,PROF.nakName+' — '+NAK_EN[PROF.nakshatra]+'. Pada '+PROF.pada+' of 4.')
+   +pit('Solar month',PROF.solarRashiName+' ('+PROF.solarTA+')','The Sun\'s sidereal rashi at your birth. The star birthday recurs each year in this solar month.');
+}
+
+/* ── Session storage ── */
+function saveState(){
+  try{
+    sessionStorage.setItem('bb_dob',$('dob').value||'');
+    sessionStorage.setItem('bb_tob',$('tob').value||'06:00');
+    sessionStorage.setItem('bb_tz',$('tz').value);
+    sessionStorage.setItem('bb_lat',LAT);
+    sessionStorage.setItem('bb_lon',LON);
+  }catch(e){}
+}
+function restoreState(){
+  try{
+    const dob=sessionStorage.getItem('bb_dob');
+    const tob=sessionStorage.getItem('bb_tob');
+    const tz=sessionStorage.getItem('bb_tz');
+    const lat=+sessionStorage.getItem('bb_lat');
+    const lon=+sessionStorage.getItem('bb_lon');
+    if(dob)$('dob').value=dob;
+    if(tob)$('tob').value=tob;
+    if(tz)$('tz').value=tz;
+    if(lat&&lon&&(lat!==23||lon!==80)){
+      LAT=lat;LON=lon;
+      // defer map pin until Leaflet ready
+      const pinWhenReady=()=>{if(typeof L!=='undefined'&&leafletMap){leafletMap.setView([lat,lon],10);setMapPin(lat,lon)}else setTimeout(pinWhenReady,300)};
+      pinWhenReady();
+    }
+  }catch(e){}
+}
+
+/* ── Mobile panchanga population ── */
+function buildMobilePanchanga(){
+  const todayPanelHTML=$('todayPanel').innerHTML;
+  $('mobilePanchangaItems').innerHTML=todayPanelHTML;
+}
+
+/* ── Pause orrery when tab hidden ── */
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){if(orrAF){cancelAnimationFrame(orrAF);orrAF=null}}
+  else if(!orrAF)drawOrrery();
+});
+
+buildHeaderLogo();
+buildTithiWheel();buildNakWheel();buildPhaseStrip();
+buildTodayPanel();
+buildMobilePanchanga();
+restoreState();
+
+/* ── STICKY NAV: active section highlighting ── */
+(function(){
+  const nav=document.getElementById('stickyNav');
+  if(!nav)return;
+  const links=[...nav.querySelectorAll('a')];
+  const sectionIds=links.map(a=>a.getAttribute('href').replace('#',''));
+  function getActive(){
+    const scrollY=window.scrollY+80;
+    let active=sectionIds[0];
+    for(const id of sectionIds){
+      const el=document.getElementById(id);
+      if(el&&el.getBoundingClientRect().top+window.scrollY<=scrollY)active=id;
+    }
+    return active;
+  }
+  function update(){
+    const a=getActive();
+    links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+a));
+  }
+  window.addEventListener('scroll',update,{passive:true});
+  update();
+})();
+</script>
+</body>
+</html>

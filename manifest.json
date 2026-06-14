@@ -1,0 +1,36 @@
+{
+  "name": "Bharat Birthtime",
+  "short_name": "BharatBday",
+  "description": "Find your Indian birthday — Janma Tithi and Nakshatra for any year",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0d5a51",
+  "background_color": "#f0f4f1",
+  "lang": "en-IN",
+  "categories": ["lifestyle", "education", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find my Indian birthday",
+      "short_name": "Calculate",
+      "description": "Jump straight to the birthday calculator",
+      "url": "/?action=calculate",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
