@@ -6,11 +6,49 @@
 <title>Bharat Birthtime — Your Indian Astrological Birthday</title>
 <meta name="description" content="Find your Indian astrological birthday — the day the Sun and Moon return to the exact alignment at your birth. Tithi (lunisolar) and Nakshatra (star) methods.">
 <meta property="og:title" content="Bharat Birthtime — Your Indian Astrological Birthday">
-<meta property="og:description" content="Your real birthday — the day the cosmos remembers. Find your Tithi birthday and Star birthday using the ancient Indian panchanga system.">
+<meta property="og:description" content="Your real birthday — the day the cosmos remembers. Find your Tithi birthday and Star birthday using the ancient Indian panchanga system. Free, private, all computation in your browser.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://bharatbirthtime.in">
+<meta property="og:image" content="https://bharatbirthtime.in/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bharat Birthtime — nakshatra wheel and moon over India, with the tagline: Find your Indian astrological birthday">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Bharat Birthtime — Find Your Indian Birthday">
 <meta name="twitter:description" content="The day the Sun and Moon return to the alignment of your birth. Tithi + Nakshatra methods. Free, all computation in browser.">
+<meta name="twitter:image" content="https://bharatbirthtime.in/og-image.png">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d5a51">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BharatBday">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<!-- OneSignal Web Push — replace YOUR_APP_ID after registering at onesignal.com -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "7d43e69e-b9b7-482c-bd2f-993857aac815",
+      notifyButton: { enable: false },   // we show our own prompt below
+      promptOptions: {
+        slidedown: {
+          prompts: [{
+            type: "push",
+            autoPrompt: false,
+            text: {
+              actionMessage: "Get a reminder before your Janma Tithi each year 🌙",
+              acceptButton: "Yes, remind me",
+              cancelButton: "Not now"
+            }
+          }]
+        }
+      }
+    });
+  });
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
 :root{
@@ -211,6 +249,25 @@ figure.viz figcaption{font-size:12.5px;color:var(--ink2);font-family:sans-serif;
 #icsNameBox input{flex:1}
 
 /* ── interesting facts ── */
+/* ── Tithi twin festivals (Feature A) ── */
+.tithi-twins{background:linear-gradient(135deg,rgba(18,90,80,.08),rgba(232,181,69,.06));border:1px solid rgba(232,181,69,.3);border-radius:12px;padding:16px 18px;margin-top:16px}
+.tt-head{font-size:13px;letter-spacing:.7px;text-transform:uppercase;color:var(--gold2);margin-bottom:6px;font-family:sans-serif;font-weight:700}
+.tt-sub{font-family:sans-serif;font-size:13.5px;color:var(--ink2);margin:0 0 12px;line-height:1.5}
+.tt-label{font-family:sans-serif;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--teal2);font-weight:700;margin:10px 0 6px;opacity:.8}
+.tt-item{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.06);font-family:sans-serif;font-size:13.5px;line-height:1.45}
+.tt-item:last-child{border-bottom:none}
+.tt-item.tt-exact{background:rgba(232,181,69,.08);border-radius:8px;padding:8px 10px;border:1px solid rgba(232,181,69,.2);margin-bottom:4px}
+.tt-item strong{color:var(--night);min-width:140px}
+.tt-item span{color:var(--ink2);font-size:12.5px}
+/* ── Festival countdown sidebar (Feature D) ── */
+.fest-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+.fest-item:last-child{border-bottom:none}
+.fest-emoji{font-size:20px;line-height:1;flex-shrink:0;margin-top:1px}
+.fest-info{flex:1;min-width:0}
+.fest-info strong{display:block;font-family:sans-serif;font-size:12.5px;color:var(--night);font-weight:700;line-height:1.3}
+.fest-info span{font-family:sans-serif;font-size:11.5px;color:var(--ink2);line-height:1.4}
+.fest-days{display:inline-block;background:rgba(18,90,80,.12);color:var(--teal2);font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 8px;margin-top:3px;font-family:sans-serif}
+.fest-today{background:rgba(232,181,69,.15);color:#b8860b;font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 8px;margin-top:3px;font-family:sans-serif;display:inline-block}
 .facts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:16px}
 .fact-card{background:linear-gradient(145deg,#f6fbf8,#edf5ef);border:1px solid var(--line);
   border-radius:12px;padding:16px 18px}
@@ -337,6 +394,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   <a href="#learnWhat">✦ Why it matters</a>
   <a href="#faqSection">❓ FAQ</a>
   <a href="#factsSection">💡 Facts</a>
+  <a href="#newsletterSection">📬 Subscribe</a>
   <a href="#contactSection">✉ Contact</a>
 </nav>
 
@@ -346,6 +404,10 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
     <div class="sw">
       <h4>The sky today</h4>
       <div id="todayPanel"><div style="color:#aaa;font-family:sans-serif;font-size:13px">Computing…</div></div>
+    </div>
+    <div class="sw" style="margin-top:16px" id="festCountdown">
+      <h4>Upcoming festivals</h4>
+      <div id="festList"><div style="color:#aaa;font-family:sans-serif;font-size:13px">Computing…</div></div>
     </div>
     <div class="sw" style="margin-top:16px">
       <h4>Tonight's Moon</h4>
@@ -370,6 +432,18 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
       <div id="mobilePanchangaItems"></div>
     </div>
   </div>
+
+  <!-- HERO INTRO -->
+  <section class="card" style="text-align:center;padding:32px 24px 28px">
+    <h1 style="font-size:clamp(22px,4vw,34px);font-weight:normal;color:var(--teal2);margin-bottom:10px;line-height:1.3">Your birthday, the Indian way 🌙</h1>
+    <p style="font-family:sans-serif;font-size:15px;color:var(--ink2);max-width:560px;margin:0 auto 14px;line-height:1.7">The Indian calendar doesn't track Earth's orbit — it tracks the <strong>Moon</strong>. Your real Indian birthday (Janma Tithi &amp; Nakshatra) lands on a different English date every year, just like Diwali and Janmashtami do.</p>
+    <p style="font-family:sans-serif;font-size:14px;color:var(--ink2);max-width:520px;margin:0 auto">👇 Enter your birth date, time, and location below — the tool will instantly show your Indian birthday for any year, with a calendar export and a shareable card.</p>
+    <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+      <span style="font-family:sans-serif;font-size:12.5px;background:#125a50;color:#e8f5f0;padding:6px 16px;border-radius:20px;font-weight:600">🔒 Runs 100% in your browser</span>
+      <span style="font-family:sans-serif;font-size:12.5px;background:#125a50;color:#e8f5f0;padding:6px 16px;border-radius:20px;font-weight:600">📍 No account needed</span>
+      <span style="font-family:sans-serif;font-size:12.5px;background:#125a50;color:#e8f5f0;padding:6px 16px;border-radius:20px;font-weight:600">📅 Works for any year</span>
+    </div>
+  </section>
 
   <!-- INPUT -->
   <span id="inputSection"></span>
@@ -442,6 +516,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   <section class="card" id="results">
     <h2>Your birth panchanga</h2>
     <div class="panchanga" id="ppanel"></div>
+    <div id="tithiTwins" style="display:none"></div>
     <div id="boundaryNote"></div>
 
     <div class="divider">❖ ❖ ❖</div>
@@ -512,7 +587,8 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
     <!-- share -->
     <div class="sharebox">
       <h3>Share your Indian birthday 🪔</h3>
-      <input type="text" id="shareName" placeholder="Your name (optional — appears on the card)" maxlength="30">
+      <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">Type your name below to personalise the card, then tap <strong>Share on WhatsApp</strong> to send it directly — or download the image to post anywhere.</p>
+      <input type="text" id="shareName" placeholder="Your name (optional)" maxlength="30" style="box-sizing:border-box">
       <img id="cardPreview" alt="Share card preview">
 
       <!-- primary actions -->
@@ -534,14 +610,18 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
 
       <!-- calendar export with name -->
       <div style="margin-top:14px;text-align:center">
-        <button class="btn ghost" id="icsBtn" style="font-size:14px">📅 Export to Calendar (.ics)</button>
+        <button class="btn ghost" id="icsBtn" style="font-size:14px">📅 Add to Calendar — next 12 years</button>
+        <div style="font-family:sans-serif;font-size:12px;color:var(--ink2);margin-top:6px;line-height:1.6">
+          Exports <strong>both Tithi &amp; Star birthdays for the next 12 years</strong> as a single .ics file.<br>
+          Each event includes a <strong>reminder the day before</strong> — so you never miss it.<br>
+          Works with Google Calendar, Apple Calendar, and Outlook.
+        </div>
         <div id="icsNameBox">
           <label>Whose birthday should the calendar events be named after?</label>
           <div class="ics-row">
             <input type="text" id="icsPersonName" placeholder="e.g. Priya Sharma" maxlength="40">
-            <button class="btn" id="icsConfirmBtn">Save to Calendar</button>
+            <button class="btn" id="icsConfirmBtn">Generate &amp; Download</button>
           </div>
-          <div style="font-size:11px;color:var(--ink2);margin-top:6px">Generates a .ics file with both Tithi and Star birthdays for the next 5 years — importable into Google Calendar, Apple Calendar, or Outlook.</div>
         </div>
       </div>
 
@@ -727,6 +807,50 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
     </div>
   </section>
 
+  <!-- STAY CONNECTED -->
+  <section class="card" id="newsletterSection" style="text-align:center">
+    <h2><span class="num">🌙</span> Stay connected</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start;max-width:620px;margin:0 auto">
+
+      <!-- WhatsApp Channel block -->
+      <div style="flex:1;min-width:240px;text-align:left;background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:18px 20px">
+        <p style="font-family:sans-serif;font-size:13px;font-weight:700;color:#1a6b3c;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">WhatsApp Channel</p>
+        <p style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);margin-bottom:14px;line-height:1.6"><strong style="color:var(--night)">Breeze under the Banyan</strong> is a space for those drawn to spirituality, ancient science, and contemplative living. The Janma Tithi reminder is just one thread in a richer conversation.</p>
+        <a href="https://whatsapp.com/channel/0029VbCQ8rPHwXb5Wpungh44" target="_blank" rel="noopener"
+          style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Follow Breeze under the Banyan
+        </a>
+      </div>
+
+      <!-- Push Notification block -->
+      <div style="flex:1;min-width:220px;text-align:left;background:rgba(18,90,80,.06);border:1px solid rgba(18,90,80,.15);border-radius:12px;padding:18px 20px">
+        <p style="font-family:sans-serif;font-size:13px;font-weight:700;color:var(--teal2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Browser Reminders</p>
+        <p style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);margin-bottom:14px;line-height:1.6">Get a <strong style="color:var(--night)">silent notification on this device</strong> a day before your Janma Tithi each year. Works in Chrome and Edge on desktop and Android. No app required.</p>
+        <button id="pushBtn" onclick="requestPushPermission()"
+          style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;border:none;cursor:pointer">
+          🔔 Enable reminders on this device
+        </button>
+      </div>
+
+      <!-- Install PWA button (shown only when installable) -->
+      <button id="installBtn" style="display:none;align-items:center;gap:10px;background:#e8b545;color:#fff;font-family:sans-serif;font-size:14px;font-weight:700;padding:13px 22px;border-radius:10px;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(232,181,69,.3)">
+        📲 Install app
+      </button>
+    </div>
+
+    <p id="pushStatus" style="font-family:sans-serif;font-size:12.5px;color:var(--teal2);margin-top:14px;min-height:18px"></p>
+
+    <!-- Share your profile link -->
+    <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--line)">
+      <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">Share your birth profile with family — they can open it pre-filled</p>
+      <button id="copyProfileBtn" onclick="copyProfileLink()" class="btn ghost" style="font-size:13px" disabled>
+        🔗 Copy shareable profile link
+      </button>
+      <div id="profileLinkCopied" style="display:none;margin-top:8px;font-family:sans-serif;font-size:12.5px;color:var(--teal2);font-weight:600">✓ Link copied — paste anywhere!</div>
+    </div>
+  </section>
+
   <!-- CONTACT -->
   <section class="card" id="contactSection">
     <h2><span class="num">✉</span> Contact &amp; Feedback</h2>
@@ -735,14 +859,10 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
         <p style="margin-bottom:12px">Have a question about your panchanga results, found an error, or want to share feedback? We'd love to hear from you.</p>
         <p style="margin-bottom:6px"><strong>Email</strong><br>
           <a class="contact-link" href="mailto:studioofgigil@gmail.com">studioofgigil@gmail.com</a></p>
-        <p style="margin-bottom:6px"><strong>WhatsApp</strong><br>
-          <a class="contact-link" href="https://wa.me/916300577983" target="_blank" rel="noopener">Chat on WhatsApp</a></p>
-        <p style="margin-bottom:6px"><strong>Instagram</strong><br>
-          <a class="contact-link" href="https://instagram.com/gigil_club" target="_blank" rel="noopener">@gigil_club</a></p>
       </div>
       <div class="about-col">
         <p style="margin-bottom:10px"><strong>Before writing to us:</strong></p>
-        <ul style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);line-height:1.9;padding-left:18px">
+        <ul style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);line-height:1.9;padding-left:18px;text-align:left">
           <li>Make sure you've entered birth time as accurately as possible</li>
           <li>Use the map pin for best location accuracy</li>
           <li>Check the FAQ section — your question may be answered there</li>
@@ -751,6 +871,44 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
         <p style="margin-top:12px;font-family:sans-serif;font-size:12.5px;color:var(--ink2)">🔒 All calculations run entirely in your browser. No personal data is ever transmitted or stored by this page.</p>
       </div>
     </div>
+  </section>
+
+  <!-- SHARE THIS WEBSITE -->
+  <section class="card" style="text-align:center;padding-bottom:28px">
+    <h2><span class="num">🔗</span> Share Bharat Birthtime</h2>
+    <p style="font-family:sans-serif;font-size:14px;color:var(--ink2);max-width:500px;margin:0 auto 20px;line-height:1.7">Know someone who'd love to find their Indian birthday? Share this page with them.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:580px;margin:0 auto">
+      <!-- WhatsApp -->
+      <a id="siteWaBtn" href="https://wa.me/?text=Find%20your%20Indian%20astrological%20birthday%20%F0%9F%AA%94%20%E2%80%94%20Janma%20Tithi%20%2B%20Nakshatra%20for%20any%20year.%20Free%2C%20private%2C%20runs%20in%20your%20browser%3A%20https%3A%2F%2Fbharatbirthtime.in" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:7px;background:#25D366;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+      <!-- Twitter / X -->
+      <a id="siteTwBtn" href="https://twitter.com/intent/tweet?text=Find%20your%20Indian%20astrological%20birthday%20%F0%9F%AA%94%20%E2%80%94%20Janma%20Tithi%20%2B%20Nakshatra%20for%20any%20year.%20Free%2C%20private%2C%20all%20in-browser.&url=https%3A%2F%2Fbharatbirthtime.in" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:7px;background:#000;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter / X
+      </a>
+      <!-- Facebook -->
+      <a id="siteFbBtn" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbharatbirthtime.in" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:7px;background:#1877F2;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Facebook
+      </a>
+      <!-- LinkedIn -->
+      <a id="siteLiBtn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fbharatbirthtime.in" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:7px;background:#0A66C2;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <!-- Copy URL -->
+      <button onclick="(function(){const u='https://bharatbirthtime.in';navigator.clipboard.writeText(u).then(()=>{const b=document.getElementById('siteCopyConfirm');b.style.display='inline';setTimeout(()=>b.style.display='none',2500)});})()"
+        style="display:inline-flex;align-items:center;gap:7px;background:var(--teal);color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;border:none;cursor:pointer">
+        🔗 Copy link
+      </button>
+    </div>
+    <div id="siteCopyConfirm" style="display:none;margin-top:10px;font-family:sans-serif;font-size:12.5px;color:var(--teal2);font-weight:600">✓ Link copied — paste anywhere!</div>
   </section>
 
 </main>
@@ -774,6 +932,25 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
 </div>
 
 <div id="tipBox"></div>
+
+<!-- Scroll-to-top button -->
+<button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top"
+  style="position:fixed;bottom:28px;right:28px;z-index:9998;width:44px;height:44px;border-radius:50%;
+    background:var(--teal);color:#fff;border:none;cursor:pointer;font-size:20px;line-height:44px;text-align:center;
+    box-shadow:0 3px 14px rgba(0,0,0,.28);opacity:0;pointer-events:none;
+    transition:opacity .25s,transform .25s;transform:translateY(10px)">↑</button>
+<script>
+(function(){
+  const btn=document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll',function(){
+    if(window.scrollY>320){
+      btn.style.opacity='1';btn.style.pointerEvents='auto';btn.style.transform='translateY(0)';
+    } else {
+      btn.style.opacity='0';btn.style.pointerEvents='none';btn.style.transform='translateY(10px)';
+    }
+  },{passive:true});
+})();
+</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -868,7 +1045,7 @@ const NAK_EN=[
 ];
 const VARA_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-function birthProfile(y,m,d,hh,mm,lat,lon,z){const jd=jdFL(y,m,d,hh,mm,z);const masa=masaAt(jd);const t=tithiAt(jd);const n=nakAt(jd);const sr=sunRashiAt(jd);return{jd,masa,tithi:t,tithiLbl:tithiLbl(t),nakshatra:n,nakName:NAK[n],pada:padaAt(jd),solarRashi:sr,solarRashiName:RASHI[sr],solarTA:SOLAR_TA[sr]}}
+function birthProfile(y,m,d,hh,mm,lat,lon,z){const jd=jdFL(y,m,d,hh,mm,z);const masa=masaAt(jd);const t=tithiAt(jd);const n=nakAt(jd);const sr=sunRashiAt(jd);return{jd,y,m,d,masa,tithi:t,tithiLbl:tithiLbl(t),nakshatra:n,nakName:NAK[n],pada:padaAt(jd),solarRashi:sr,solarRashiName:RASHI[sr],solarTA:SOLAR_TA[sr]}}
 function tithiBday(prof,yr,lat,lon,z){const tEnd=toJD(yr+1,2,1);let nm=nmAfter(toJD(yr-1,12,1));const months=[];while(nm!==null&&nm<tEnd){const nx=nmAfter(nm+1);if(!nx)break;const rs=sunRashiAt(nm+.01),re=sunRashiAt(nx-.01);const ad=rs===re;months.push({start:nm,end:nx,index:ad?(rs+1)%12:re,adhika:ad});nm=nx}
 let cands=months.filter(mo=>mo.index===prof.masa.index&&mo.adhika===prof.masa.adhika);let note=null;
 if(!cands.length&&prof.masa.adhika){cands=months.filter(mo=>mo.index===prof.masa.index&&!mo.adhika);note='Born in Adhika masa — not in this year, so nija (regular) masa used.'}
@@ -907,6 +1084,8 @@ function initLeafletMap(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(leafletMap);
   L.control.attribution({prefix:'<a href="https://openstreetmap.org">© OpenStreetMap</a>'}).addTo(leafletMap);
   leafletMap.on('click',e=>setMapPin(e.latlng.lat,e.latlng.lng));
+  // Force tile render after container is fully painted
+  setTimeout(()=>leafletMap.invalidateSize(),200);
 }
 function setMapPin(lat,lng){
   LAT=Math.round(lat*10000)/10000;LON=Math.round(lng*10000)/10000;
@@ -956,6 +1135,7 @@ $('go').addEventListener('click',()=>{
     alert('Could not compute birth profile: '+err.message+'\nTry adjusting the birth date or time.');return;
   }
   saveState();
+  updateURLWithProfile();
   // boundary check
   const jdS=jdFL(y,m,d,hh,mm,ZONE),jdE=jdS+30/1440;
   const tS=tithiAt(jdS),tE=tithiAt(jdE),nS=nakAt(jdS),nE=nakAt(jdE);
@@ -1436,24 +1616,31 @@ function exportICS(personName){
   const dt=(r,offset=0)=>{const d=new Date(r.year,r.month-1,r.day+(offset||0));return d.getFullYear()+''+pad(d.getMonth()+1)+''+pad(d.getDate())};
   let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Bharat Birthtime//EN\r\nCALSCALE:GREGORIAN\r\n';
   ics+='X-WR-CALNAME:'+(name?name+"'s Indian Birthdays":'Indian Birthdays')+'\r\n';
+  const alarm='\r\nBEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:Indian birthday tomorrow — ';
   const curYr=new Date().getFullYear();
-  for(let yr=curYr;yr<curYr+5;yr++){
+  for(let yr=curYr;yr<curYr+12;yr++){
     const tb=tithiBday(PROF,yr,LAT,LON,ZONE);
     const nb=nakBday(PROF,yr,LAT,LON,ZONE);
     for(const r of tb.results){
       const masa=(r.adhika?'Adhika ':'')+r.masaName;
+      const summary='🌙 '+(name?name+' — ':'')+'Janma Tithi · '+masa+' '+PROF.tithiLbl;
       ics+='BEGIN:VEVENT\r\nUID:tithi-'+dt(r)+'-'+yr+'@bharat-birthtime\r\n';
       ics+='DTSTART;VALUE=DATE:'+dt(r)+'\r\nDTEND;VALUE=DATE:'+dt(r,1)+'\r\n';
-      ics+='SUMMARY:🌙 '+namePrefix+'Janma Tithi — '+masa+' '+PROF.tithiLbl+'\r\n';
-      ics+='DESCRIPTION:Indian birthday – Tithi method\\nName: '+(name||'—')+'\\nMasa: '+masa+'\\nTithi: '+PROF.tithiLbl+'\\nNakshatra: '+PROF.nakName+'\r\n';
-      ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR\r\nEND:VEVENT\r\n';
+      ics+='SUMMARY:'+summary+'\r\n';
+      ics+='DESCRIPTION:Indian birthday – Tithi method\\nName: '+(name||'—')+'\\nMasa: '+masa+'\\nTithi: '+PROF.tithiLbl+'\\nNakshatra: '+PROF.nakName+'\\n\\nComputed by Bharat Birthtime\r\n';
+      ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR';
+      ics+=alarm+summary+'\r\nEND:VALARM\r\n';
+      ics+='END:VEVENT\r\n';
     }
     for(const r of nb.results){
+      const summary='⭐ '+(name?name+' — ':'')+'Janma Nakshatra · '+PROF.nakName;
       ics+='BEGIN:VEVENT\r\nUID:star-'+dt(r)+'-'+yr+'@bharat-birthtime\r\n';
       ics+='DTSTART;VALUE=DATE:'+dt(r)+'\r\nDTEND;VALUE=DATE:'+dt(r,1)+'\r\n';
-      ics+='SUMMARY:⭐ '+namePrefix+'Janma Nakshatra — '+PROF.nakName+'\r\n';
-      ics+='DESCRIPTION:Indian birthday – Star method\\nName: '+(name||'—')+'\\nNakshatra: '+PROF.nakName+'\\nSolar month: '+PROF.solarRashiName+' ('+PROF.solarTA+')\r\n';
-      ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR\r\nEND:VEVENT\r\n';
+      ics+='SUMMARY:'+summary+'\r\n';
+      ics+='DESCRIPTION:Indian birthday – Star method\\nName: '+(name||'—')+'\\nNakshatra: '+PROF.nakName+'\\nSolar month: '+PROF.solarRashiName+' ('+PROF.solarTA+')\\n\\nComputed by Bharat Birthtime\r\n';
+      ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR';
+      ics+=alarm+summary+'\r\nEND:VALARM\r\n';
+      ics+='END:VEVENT\r\n';
     }
   }
   ics+='END:VCALENDAR';
@@ -1485,11 +1672,13 @@ function shareText(){
 function updateSocialLinks(){
   if(!LAST.tb)return;
   const text=shareText();
-  const url=encodeURIComponent(window.location.href);
+  // Use a canonical URL — file:// won't work for FB/LI; fall back to the page URL or a placeholder
+  const rawUrl=(window.location.protocol==='file:'?'https://bharatbirthtime.in':window.location.origin+window.location.pathname);
+  const url=encodeURIComponent(rawUrl);
   const enc=encodeURIComponent(text);
-  $('twitterShareBtn').href='https://twitter.com/intent/tweet?text='+enc;
-  $('fbShareBtn').href='https://www.facebook.com/sharer/sharer.php?u='+url+'&quote='+enc;
-  $('liShareBtn').href='https://www.linkedin.com/sharing/share-offsite/?url='+url;
+  $('twitterShareBtn').href='https://twitter.com/intent/tweet?text='+enc+'&url='+url;
+  $('fbShareBtn').href='https://www.facebook.com/sharer/sharer.php?u='+url;
+  $('liShareBtn').href='https://www.linkedin.com/sharing/share-offsite/?url='+url+'&summary='+enc;
 }
 $('copyLinkBtn').addEventListener('click',()=>{
   const text=LAST.tb?shareText():window.location.href;
@@ -1553,6 +1742,17 @@ function buildHeaderLogo(){
 /* ── Vimshottari Dasha ── */
 const DASHA_P=['Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'];
 const DASHA_Y=[7,20,6,10,7,18,16,19,17]; // total = 120
+const DASHA_TIP={
+  'Ketu':   'Ketu (7 yrs) — spirituality, detachment, past-life karma, moksha. A period of withdrawal, inner searching, and release of material attachments.',
+  'Venus':  'Venus / Shukra (20 yrs) — creativity, beauty, romance, luxury, artistic pursuits. Often a period of abundance, relationships, and sensory enjoyment.',
+  'Sun':    'Sun / Surya (6 yrs) — identity, authority, ego, father figures, government. A period of self-assertion, leadership, and public recognition.',
+  'Moon':   'Moon / Chandra (10 yrs) — emotions, mind, mother, nurturing, intuition. A period of emotional sensitivity, home life, and inner reflection.',
+  'Mars':   'Mars / Mangal (7 yrs) — energy, ambition, conflict, courage, siblings. A period of drive, action, and sometimes friction or aggression.',
+  'Rahu':   'Rahu (18 yrs) — material obsession, foreign connections, technology, illusions. A period of worldly ambition, unconventional paths, and rapid change.',
+  'Jupiter':'Jupiter / Guru (16 yrs) — wisdom, expansion, teaching, faith, fortune. Often the most auspicious period — brings growth, opportunity, and spiritual insight.',
+  'Saturn': 'Saturn / Shani (19 yrs) — discipline, karma, hard work, delays, longevity. A period of responsibility, lessons, and laying durable foundations.',
+  'Mercury':'Mercury / Budha (17 yrs) — communication, intellect, commerce, analysis. A period of learning, networking, writing, and mental agility.'
+};
 // Each nakshatra maps to one of the 9 dashas in repeating order (0..8, 0..8, 0..8)
 function showDasha(){
   if(!PROF)return;
@@ -1574,7 +1774,7 @@ function showDasha(){
     const isCur=todayJD>=seqStart&&todayJD<seqEnd;
     if(isCur)curIdx=i;
     const sl=locFJD(seqStart,ZONE),el=locFJD(seqEnd,ZONE);
-    rows+=`<tr${isCur?' class="dasha-cur"':''}><td><strong>${DASHA_P[di]}</strong></td><td>${yrs} yrs</td><td>${sl.year}</td><td>${el.year}</td></tr>`;
+    rows+=`<tr${isCur?' class="dasha-cur"':''}><td><strong><span data-tip="${DASHA_TIP[DASHA_P[di]]||DASHA_P[di]}">${DASHA_P[di]}</span></strong></td><td>${yrs} yrs</td><td>${sl.year}</td><td>${el.year}</td></tr>`;
     seqStart=seqEnd;
   }
   // Which dasha are we currently in?
@@ -1587,8 +1787,14 @@ function showDasha(){
     s2=e;
   }
   const html=`<div class="dasha-inner">
-    <h4>Vimshottari <span data-tip="Dasha: a planetary period system in Vedic astrology. Vimshottari = '120-year' cycle of 9 planets. Your birth nakshatra determines the starting planet. These periods are used for life-phase timing in Jyotisha.">Dasha</span> — birth period & life sequence</h4>
-    <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">Your birth nakshatra <strong>${PROF.nakName}</strong> places you in the <span data-tip="${DASHA_P[dashaIdx]} Mahadasha lasts ${totalYr} years. The exact remaining period depends on the Moon's position within the nakshatra at the moment of birth."><strong>${DASHA_P[dashaIdx]} Mahadasha</strong></span> at birth (${totalYr} year period). ${curDasha?'<strong>Current Mahadasha: '+curDasha+'</strong> (runs until ~'+curEnd+').':''}</p>
+    <h4>Vimshottari Dasha — your life's planetary timeline</h4>
+    <div style="background:rgba(232,181,69,.07);border-left:3px solid #e8b545;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:12px;font-family:sans-serif;font-size:13px;color:var(--ink2);line-height:1.6">
+      <strong style="color:var(--night)">What is this?</strong> In Vedic astrology (Jyotisha), time is divided into planetary ruling periods called <em>Dashas</em>. <em>Vimshottari</em> means "120 years" — the total length of one complete cycle across 9 planets.<br><br>
+      <strong style="color:var(--night)">Why does it matter?</strong> Each planet colours the life themes dominant during its period. A Saturn Dasha (19 years) tends to bring discipline, hard work, and karmic lessons. A Jupiter Dasha (16 years) favours expansion, learning, and good fortune. Knowing which Dasha you are in helps a Jyotishi time predictions for career, relationships, and health.<br><br>
+      <strong style="color:var(--night)">How is it calculated?</strong> Your birth nakshatra determines the <em>starting</em> planet. The Moon's exact position within that nakshatra at birth determines how much of the first period remains. The sequence then cycles through all 9 planets in a fixed order for life.
+    </div>
+    <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:10px">Your birth nakshatra <strong>${PROF.nakName}</strong> places you in the <span data-tip="${DASHA_P[dashaIdx]} Mahadasha lasts ${totalYr} years. The exact remaining period depends on the Moon's position within the nakshatra at the moment of birth."><strong>${DASHA_P[dashaIdx]} Mahadasha</strong></span> at birth (${totalYr}-year period). ${curDasha?'<strong style="color:var(--teal2)">You are currently in the '+curDasha+' Mahadasha</strong>, running until ~'+curEnd+'.':''}</p>
+    <p style="font-size:12.5px;font-family:sans-serif;color:var(--ink2);margin-bottom:8px;font-style:italic">💡 Hover over any planet name below to see the life themes it governs during its period.</p>
     <table class="dasha-mini"><thead><tr><th>Planet</th><th>Duration</th><th>From</th><th>To</th></tr></thead><tbody>${rows}</tbody></table>
     <p style="font-size:11.5px;font-family:sans-serif;color:var(--ink2);margin-top:8px">Exact sub-periods (antardashas) require precise birth time and a full Jyotisha reading. Consult a jyotishi for life-event timing.</p>
   </div>`;
@@ -1637,11 +1843,15 @@ function renderPanchanga(){
     masaName=MASA[nextIdx];adhika=false; // adhika handling simplified
   }
   const purn=PROF.tithi>15&&!isPurni?' <small style="color:#6d8a85">(purnimanta: '+MASA[(PROF.masa.index+1)%12]+')</small>':'';
+  const MON_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dobLabel=PROF.d+' '+MON_EN[PROF.m-1]+' '+PROF.y;
   $('ppanel').innerHTML=
     pit('Masa',(adhika?'Adhika ':'')+masaName+purn,'Masa = lunar month. '+(adhika?'Adhika = intercalary leap month.':'Named by the solar transit that falls within it.'))
    +pit('Tithi',PROF.tithiLbl,'Tithi = one of 30 lunar days (12° of Moon–Sun elongation each). Your birth tithi is '+PROF.tithiLbl+'.')
    +pit('Nakshatra',PROF.nakName+' · pada '+PROF.pada,PROF.nakName+' — '+NAK_EN[PROF.nakshatra]+'. Pada '+PROF.pada+' of 4.')
-   +pit('Solar month',PROF.solarRashiName+' ('+PROF.solarTA+')','The Sun\'s sidereal rashi at your birth. The star birthday recurs each year in this solar month.');
+   +pit('Solar month',PROF.solarRashiName+' ('+PROF.solarTA+')','The Sun\'s sidereal rashi at your birth. The star birthday recurs each year in this solar month.')
+   +pit('English date',dobLabel,'Your Gregorian (English calendar) date of birth — the fixed date most people know as their birthday.');
+  buildTithiTwins();
 }
 
 /* ── Session storage ── */
@@ -1685,11 +1895,232 @@ document.addEventListener('visibilitychange',()=>{
   else if(!orrAF)drawOrrery();
 });
 
+/* ══ FESTIVAL DATA ══ */
+const FESTIVAL_DATA=[
+  /* ── Chaitra (masa 0) ── */
+  {name:'Gudi Padwa / Ugadi',      tithi:1, masa:0,  emoji:'🌸', desc:'New Year in Maharashtra, Karnataka & Andhra — Chaitra Shukla Pratipada'},
+  {name:'Ram Navami',              tithi:9, masa:0,  emoji:'🏹', desc:'Birthday of Lord Rama — Chaitra Shukla Navami'},
+  {name:'Hanuman Jayanti',         tithi:15,masa:0,  emoji:'🙏', desc:'Chaitra Purnima — birthday of Lord Hanuman'},
+  /* ── Vaishakha (masa 1) ── */
+  {name:'Akshaya Tritiya',         tithi:3, masa:1,  emoji:'✨', desc:'Vaishakha Shukla Tritiya — supremely auspicious for new beginnings, gold, and charity'},
+  {name:'Mohini Ekadashi',         tithi:11,masa:1,  emoji:'🌺', desc:'Vaishakha Shukla Ekadashi — Vishnu appeared as Mohini to distribute amrit to the gods'},
+  {name:'Buddha Purnima',          tithi:15,masa:1,  emoji:'☸️', desc:'Vaishakha Purnima — birth, enlightenment and passing of Siddhartha Gautama'},
+  /* ── Jyeshtha (masa 2) ── */
+  {name:'Nirjala Ekadashi',        tithi:11,masa:2,  emoji:'💧', desc:'Jyeshtha Shukla Ekadashi — the most powerful Ekadashi; observed without even water for full benefit of all 24 Ekadashis'},
+  {name:'Vat Purnima',             tithi:15,masa:2,  emoji:'🌳', desc:'Jyeshtha Purnima — women tie sacred thread around the banyan tree praying for husband\'s long life (Maharashtra, Gujarat)'},
+  /* ── Ashadha (masa 3) ── */
+  {name:'Rath Yatra',              tithi:2, masa:3,  emoji:'🏛️', desc:'Ashadha Shukla Dwitiya — Lord Jagannath\'s chariot festival at Puri; one of India\'s largest processions'},
+  {name:'Devshayani Ekadashi',     tithi:11,masa:3,  emoji:'😴', desc:'Ashadha Shukla Ekadashi — Vishnu begins 4 months of cosmic sleep (Chaturmas); auspicious deeds accumulate'},
+  {name:'Guru Purnima',            tithi:15,masa:3,  emoji:'🙏', desc:'Ashadha Purnima — day to honour your guru and lineage; also Vyasa Purnima, birthday of Veda Vyasa'},
+  /* ── Shravana (masa 4) ── */
+  {name:'Nag Panchami',            tithi:5, masa:4,  emoji:'🐍', desc:'Shravana Shukla Panchami — worship of serpent deities for protection, prosperity and ancestral blessings'},
+  {name:'Putrada Ekadashi',        tithi:11,masa:4,  emoji:'🙏', desc:'Shravana Shukla Ekadashi — observed for the blessing of children and continuation of lineage'},
+  {name:'Raksha Bandhan',          tithi:15,masa:4,  emoji:'🧡', desc:'Shravana Purnima — festival of siblings and sacred bonds; also Narali Purnima (coconut offering to the sea)'},
+  {name:'Janmashtami',             tithi:23,masa:4,  emoji:'🦚', desc:'Shravana Krishna Ashtami — midnight birth of Lord Krishna; fasting, bhajan, and the famous Dahi Handi'},
+  /* ── Bhadrapada (masa 5) ── */
+  {name:'Hartalika Teej',          tithi:3, masa:5,  emoji:'🌿', desc:'Bhadrapada Shukla Tritiya — women fast for conjugal happiness; celebrates Parvati\'s penance for Shiva'},
+  {name:'Ganesh Chaturthi',        tithi:4, masa:5,  emoji:'🐘', desc:'Bhadrapada Shukla Chaturthi — birthday of Lord Ganesha; 10-day festival culminating in visarjan'},
+  {name:'Radhashtami',             tithi:8, masa:5,  emoji:'🌺', desc:'Bhadrapada Shukla Ashtami — birthday of Radha Rani, beloved of Lord Krishna; celebrated at Barsana'},
+  {name:'Onam (Thiruonam)',        tithi:12,masa:5,  emoji:'🌸', desc:'Near Bhadrapada — Kerala\'s harvest festival; King Mahabali\'s annual return; grand Pookalam (flower rangoli)'},
+  {name:'Mahalaya Amavasya',       tithi:30,masa:5,  emoji:'🙏', desc:'Bhadrapada Amavasya — end of Pitru Paksha; the day to offer final tarpan (water) to ancestors; Goddess Durga\'s descent begins'},
+  /* ── Ashwina (masa 6) ── */
+  {name:'Sharada Navratri begins', tithi:1, masa:6,  emoji:'🪔', desc:'Ashwina Shukla Pratipada — nine nights of Goddess Durga in her nine forms; the most celebrated Navratri'},
+  {name:'Maha Navami',             tithi:9, masa:6,  emoji:'⚔️', desc:'Ashwina Shukla Navami — ninth and final night of Navratri; Ayudha Puja (weapons worship); Saraswati Puja in South India'},
+  {name:'Dussehra / Vijayadashami',tithi:10,masa:6,  emoji:'🏹', desc:'Ashwina Shukla Dashami — victory of Rama over Ravana; burning of Ravana effigy; Shami tree worship'},
+  {name:'Sharad Purnima',          tithi:15,masa:6,  emoji:'🌕', desc:'Ashwina Purnima — the Moon is at its brightest and closest; Lakshmi descends to Earth; Kojagara festival'},
+  {name:'Dhanteras',               tithi:28,masa:6,  emoji:'🪙', desc:'Ashwina Krishna Trayodashi — most auspicious day to buy gold, silver, and new utensils; Yama worshipped for long life'},
+  {name:'Naraka Chaturdashi',      tithi:29,masa:6,  emoji:'✨', desc:'Ashwina Krishna Chaturdashi (Choti Diwali) — Narakasura defeated by Krishna; oil bath before sunrise'},
+  {name:'Diwali',                  tithi:30,masa:6,  emoji:'🪔', desc:'Ashwina Amavasya — festival of lights; return of Lord Rama to Ayodhya; Lakshmi Puja; fireworks'},
+  /* ── Kartika (masa 7) ── */
+  {name:'Govardhan Puja / Annakut',tithi:1, masa:7,  emoji:'🏔️', desc:'Kartika Shukla Pratipada — Krishna lifted Govardhan hill to shelter Vraja; a mountain of food (annakut) is offered to the Lord'},
+  {name:'Bhai Dooj / Yama Dwitiya',tithi:2, masa:7,  emoji:'👫', desc:'Kartika Shukla Dwitiya — siblings festival; Yama visits his sister Yamuna; sisters apply tilak to brothers'},
+  {name:'Chhath Puja',             tithi:6, masa:7,  emoji:'🌅', desc:'Kartika Shukla Shashthi — worship of the Sun god; 36-hour fast; devotees stand in rivers at sunrise and sunset (Bihar, UP, Jharkhand)'},
+  {name:'Prabodhini / Tulsi Vivah',tithi:11,masa:7,  emoji:'🪔', desc:'Kartika Shukla Ekadashi — Vishnu awakens from cosmic sleep; Tulsi Vivah (marriage of Tulsi plant with Lord Vishnu) begins'},
+  {name:'Dev Diwali',              tithi:15,masa:7,  emoji:'🕯️', desc:'Kartika Purnima — gods descend to bathe in the Ganga; a million lamps float on the river at Varanasi\'s ghats'},
+  /* ── Margashirsha (masa 8) ── */
+  {name:'Vaikunta Ekadashi',       tithi:11,masa:8,  emoji:'🚪', desc:'Margashirsha Shukla Ekadashi — the Vaikunta Dwara (heavenly gate) opens; most sacred Ekadashi for Vaishnavas; night vigil'},
+  /* ── Magha (masa 10) ── */
+  {name:'Vasant Panchami',         tithi:5, masa:10, emoji:'🎨', desc:'Magha Shukla Panchami — Saraswati Puja; arrival of spring; yellow clothes; auspicious for starting education and arts'},
+  {name:'Maghi Purnima',           tithi:15,masa:10, emoji:'🌊', desc:'Magha Purnima — holy bath at Prayagraj Sangam; a major Kumbh date; one of the most sacred days for river worship'},
+  {name:'Mahashivaratri',          tithi:29,masa:10, emoji:'🔱', desc:'Magha Krishna Chaturdashi — great night of Lord Shiva; night-long vigil, Bilva offerings, and fasting; Shiva-Parvati union'},
+  /* ── Phalguna (masa 11) ── */
+  {name:'Amalaki Ekadashi',        tithi:11,masa:11, emoji:'🌿', desc:'Phalguna Shukla Ekadashi — sacred to the Amalaki (Indian gooseberry) tree and Lord Vishnu; marks approach of spring'},
+  {name:'Holi',                    tithi:15,masa:11, emoji:'🎨', desc:'Phalguna Purnima — Holika Dahan (bonfire) the night before; next day, festival of colours, spring\'s triumph over winter'},
+];
+
+/* JD → Gregorian date */
+function jdToGreg(jd){
+  const z=Math.floor(jd+.5),f=jd+.5-z;
+  let a=z;if(z>=2299161){const g=Math.floor((z-1867216.25)/36524.25);a=z+1+g-Math.floor(g/4)}
+  const b=a+1524,c=Math.floor((b-122.1)/365.25),e2=Math.floor(365.25*c),e=Math.floor((b-e2)/30.6001);
+  const d=b-e2-Math.floor(30.6001*e),m=e<14?e-1:e-13,y=m>2?c-4716:c-4715;
+  return{y,m,d};
+}
+
+/* ── Feature D: Festival countdown (left sidebar) ── */
+function buildFestivalCountdown(){
+  const now=new Date();
+  const todayJD=toJD(now.getFullYear(),now.getMonth()+1,now.getDate(),12,0);
+  const found=[],seen=new Set();
+  for(let i=0;i<=400&&found.length<3;i++){
+    const jd=todayJD+i;
+    const t=tithiAt(jd);
+    const masa=masaAt(jd);
+    for(const f of FESTIVAL_DATA){
+      if(!seen.has(f.name)&&f.tithi===t&&f.masa===masa.index){
+        const g=jdToGreg(jd);
+        found.push({...f,gd:g,days:i});
+        seen.add(f.name);
+      }
+    }
+  }
+  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  $('festList').innerHTML=found.length?found.map(f=>`
+    <div class="fest-item">
+      <span class="fest-emoji">${f.emoji}</span>
+      <div class="fest-info">
+        <strong>${f.name}</strong>
+        <span>${f.gd.d} ${MON[f.gd.m-1]} ${f.gd.y}</span><br>
+        ${f.days===0?'<span class="fest-today">🎉 Today!</span>':'<span class="fest-days">in '+f.days+' day'+(f.days>1?'s':'')+'</span>'}
+      </div>
+    </div>`).join(''):'<div style="font-family:sans-serif;font-size:12.5px;color:var(--ink2)">No upcoming festivals found in next 400 days.</div>';
+}
+
+/* ── Feature A: Tithi twin festivals (shown after results) ── */
+function buildTithiTwins(){
+  if(!PROF){$('tithiTwins').style.display='none';return;}
+  const twins=FESTIVAL_DATA.filter(f=>f.tithi===PROF.tithi);
+  if(!twins.length){$('tithiTwins').style.display='none';return;}
+  const exact=twins.filter(f=>f.masa===PROF.masa.index);
+  const other=twins.filter(f=>f.masa!==PROF.masa.index);
+  const paksha=PROF.tithi<=15?'Shukla':'Krishna';
+  const tithiShort=PROF.tithi===15?'Purnima':PROF.tithi===30?'Amavasya':(paksha+' '+TN[(PROF.tithi-1)%15]);
+  let html='<div class="tithi-twins">';
+  html+='<div class="tt-head">✦ Your tithi twin festivals</div>';
+  html+='<p class="tt-sub">These celebrations always fall on <strong>'+tithiShort+'</strong> — the same lunar day as your birth.</p>';
+  if(exact.length){
+    html+='<div class="tt-label">Same tithi · same lunar month as your birth</div>';
+    html+=exact.map(f=>`<div class="tt-item tt-exact">${f.emoji}&nbsp; <strong>${f.name}</strong>&ensp;<span>${f.desc}</span></div>`).join('');
+  }
+  if(other.length){
+    html+='<div class="tt-label">Same tithi · across other lunar months</div>';
+    html+=other.map(f=>`<div class="tt-item">${f.emoji}&nbsp; <strong>${f.name}</strong>&ensp;<span>${f.desc}</span></div>`).join('');
+  }
+  html+='</div>';
+  $('tithiTwins').innerHTML=html;
+  $('tithiTwins').style.display='block';
+}
+
 buildHeaderLogo();
 buildTithiWheel();buildNakWheel();buildPhaseStrip();
 buildTodayPanel();
 buildMobilePanchanga();
+buildFestivalCountdown();
 restoreState();
+loadFromURL();
+
+/* ══ PWA: Service Worker registration ══ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+/* ══ PWA: Install prompt ══ */
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  const btn=$('installBtn');
+  if(btn){btn.style.display='inline-flex';btn.onclick=()=>{
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(()=>{deferredInstallPrompt=null;btn.style.display='none'});
+  }}
+});
+
+/* ══ Web Push: request permission via OneSignal ══ */
+function requestPushPermission(){
+  const st=$('pushStatus');
+  if(!window.OneSignalDeferred){
+    st.textContent='⚠ Push not configured yet — see setup instructions.';return;
+  }
+  window.OneSignalDeferred.push(async function(OS){
+    try{
+      const state=await OS.getNotificationPermission();
+      if(state==='granted'){st.textContent='✓ You are already subscribed to reminders!';return}
+      await OS.Slidedown.promptPush();
+      const newState=await OS.getNotificationPermission();
+      st.textContent=newState==='granted'?'✓ Subscribed! You will get a reminder before your Janma Tithi 🌙':'Notification permission not granted. You can enable it from browser settings.';
+    }catch(e){st.textContent='Could not request permission — try from browser settings.';}
+  });
+}
+
+/* ══ URL Profile: encode/decode ══ */
+function encodeProfileURL(){
+  if(!PROF)return null;
+  const p=new URLSearchParams({
+    dob:$('dob').value,
+    tob:$('tob').value||'06:00',
+    lat:LAT.toFixed(4),
+    lon:LON.toFixed(4),
+    tz:ZONE
+  });
+  return window.location.origin+window.location.pathname+'?'+p.toString();
+}
+
+function updateURLWithProfile(){
+  if(!PROF)return;
+  try{
+    const p=new URLSearchParams({
+      dob:$('dob').value,
+      tob:$('tob').value||'06:00',
+      lat:LAT.toFixed(4),
+      lon:LON.toFixed(4),
+      tz:ZONE
+    });
+    window.history.replaceState(null,'','?'+p.toString());
+  }catch(e){}
+  const btn=$('copyProfileBtn');
+  if(btn)btn.disabled=false;
+}
+
+function copyProfileLink(){
+  const url=encodeProfileURL();
+  if(!url)return;
+  navigator.clipboard.writeText(url).then(()=>{
+    $('profileLinkCopied').style.display='block';
+    setTimeout(()=>{$('profileLinkCopied').style.display='none'},3000);
+  }).catch(()=>{
+    prompt('Copy this link:',url);
+  });
+}
+
+function loadFromURL(){
+  try{
+    const p=new URLSearchParams(window.location.search);
+    if(!p.get('dob'))return;
+    $('dob').value=p.get('dob');
+    if(p.get('tob'))$('tob').value=p.get('tob');
+    if(p.get('tz'))$('tz').value=p.get('tz');
+    if(p.get('lat')&&p.get('lon')){
+      LAT=parseFloat(p.get('lat'));
+      LON=parseFloat(p.get('lon'));
+      // Pin the map once Leaflet is ready
+      const tryPin=setInterval(()=>{
+        if(leafletMap){
+          clearInterval(tryPin);
+          setMapPin(LAT,LON);
+          leafletMap.setView([LAT,LON],10);
+        }
+      },200);
+      setTimeout(()=>clearInterval(tryPin),5000);
+    }
+    // Auto-calculate after a short delay
+    setTimeout(()=>{
+      try{$('go').click()}catch(e){}
+    },800);
+  }catch(e){}
+}
 
 /* ── STICKY NAV: active section highlighting ── */
 (function(){
