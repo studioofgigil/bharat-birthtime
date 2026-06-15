@@ -1281,8 +1281,41 @@ function drawCard(){
   ctx.strokeStyle='#e8b545';ctx.lineWidth=3;ctx.strokeRect(42,42,W-84,H-84);
   ctx.strokeStyle='rgba(232,181,69,.3)';ctx.lineWidth=1;ctx.strokeRect(54,54,W-108,H-108);
   ctx.textAlign='center';
-  ctx.fillStyle='#e8b545';ctx.font='80px Georgia';ctx.fillText('ॐ',W/2,160);
-  ctx.font='600 28px sans-serif';ctx.fillStyle='#cfe5da';ctx.fillText('I N D I A N   B I R T H D A Y   ·   '+LAST.year,W/2,220);
+  // ── Nakshatra wheel logo ──
+  (function(){
+    const lx=W/2,ly=98,ro=76,ri=46;const D2R=Math.PI/180;
+    // Outer ring guide
+    ctx.strokeStyle='rgba(232,181,69,.2)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(lx,ly,ro+7,0,Math.PI*2);ctx.stroke();
+    // 27 segments
+    for(let i=0;i<27;i++){
+      const a0=(-90+i*(360/27))*D2R,a1=(-90+(i+1)*(360/27))*D2R;
+      const col=i%3===0?'#e8b545':i%3===1?'#0e6f68':'#117068';
+      ctx.beginPath();
+      ctx.moveTo(lx+ro*Math.cos(a0),ly+ro*Math.sin(a0));
+      ctx.arc(lx,ly,ro,a0,a1);
+      ctx.lineTo(lx+ri*Math.cos(a1),ly+ri*Math.sin(a1));
+      ctx.arc(lx,ly,ri,a1,a0,true);
+      ctx.closePath();
+      ctx.globalAlpha=i%3===0?0.92:0.72;ctx.fillStyle=col;ctx.fill();
+      ctx.globalAlpha=1;ctx.strokeStyle='#06302e';ctx.lineWidth=0.9;ctx.stroke();
+    }
+    // Centre dark disc
+    ctx.globalAlpha=1;ctx.beginPath();ctx.arc(lx,ly,ri-8,0,Math.PI*2);
+    ctx.fillStyle='#0a3a38';ctx.fill();
+    // Crescent: light circle
+    ctx.beginPath();ctx.arc(lx,ly,30,0,Math.PI*2);
+    ctx.fillStyle='#c8ddd8';ctx.globalAlpha=0.9;ctx.fill();ctx.globalAlpha=1;
+    // Crescent: dark offset circle (creates crescent silhouette)
+    ctx.beginPath();ctx.arc(lx+9,ly-5,26,0,Math.PI*2);
+    ctx.fillStyle='#0a3a38';ctx.fill();
+    // Inner ring accent
+    ctx.beginPath();ctx.arc(lx,ly,ri-8,0,Math.PI*2);
+    ctx.strokeStyle='rgba(232,181,69,.45)';ctx.lineWidth=1.2;ctx.stroke();
+  })();
+  // Header text
+  ctx.textAlign='center';
+  ctx.font='600 26px sans-serif';ctx.fillStyle='#cfe5da';ctx.fillText('I N D I A N   B I R T H D A Y   ·   '+LAST.year,W/2,218);
   const _MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   ctx.font='22px sans-serif';ctx.fillStyle='rgba(141,181,171,0.72)';
   ctx.fillText('Born  '+PROF.d+' '+_MOS[PROF.m-1]+' '+PROF.y+'  ·  Gregorian',W/2,260);
@@ -1297,7 +1330,12 @@ function drawCard(){
   y+=56;ctx.font='26px sans-serif';ctx.fillStyle='#9fc5bb';ctx.fillText('⭐  STAR BIRTHDAY  ·  '+PROF.nakName.toUpperCase(),W/2,y);y+=62;
   ctx.font='bold 50px Georgia';ctx.fillStyle='#fff';
   const nd=LAST.nb.results;ctx.fillText(nd.length?nd.map(fmtS).join('  &  ')+' '+LAST.year:'—',W/2,y);
-  ctx.font='24px sans-serif';ctx.fillStyle='#8db5ab';ctx.fillText('Computed the Vedic way · Bharat Birthtime',W/2,H-88);
+  // Footer: website URL + tagline
+  ctx.textAlign='center';
+  ctx.font='700 26px sans-serif';ctx.fillStyle='#e8b545';
+  ctx.fillText('bharat-birthtime.pages.dev',W/2,H-76); // update to bharatbirthtime.in when domain is live
+  ctx.font='20px sans-serif';ctx.fillStyle='rgba(141,181,171,0.65)';
+  ctx.fillText('Computed the Vedic way',W/2,H-44);
   $('cardPreview').src=cv.toDataURL('image/png');
 }
 function shareText(){const td=LAST.tb.results[0];const nd=LAST.nb.results;let t='🪔 My Indian birthday '+LAST.year+': '+(td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:'')+' '+PROF.tithiLbl:'—');if(nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;t+='. Find yours ✨ bharat-birthtime';return t}
