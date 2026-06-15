@@ -225,7 +225,12 @@ figure.viz figcaption{font-size:12.5px;color:var(--ink2);font-family:sans-serif;
 #mapContainer{height:210px;border-radius:10px;overflow:hidden;border:1px solid var(--line);
   background:#e8f0ee}
 .map-search-row{display:flex;gap:6px;margin-bottom:8px}
+.map-search-row{position:relative}
 .map-search-row input{flex:1}
+#locSugBox{position:absolute;top:100%;left:0;right:0;background:#0d3d38;border:1px solid rgba(232,181,69,.4);border-top:none;border-radius:0 0 8px 8px;z-index:9999;display:none;max-height:220px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.loc-sug-item{padding:10px 14px;font-size:13.5px;color:#cfe5da;cursor:pointer;border-bottom:1px solid rgba(232,181,69,.1);font-family:sans-serif;line-height:1.35}
+.loc-sug-item:last-child{border-bottom:none}
+.loc-sug-item:hover,.loc-sug-item.active{background:rgba(232,181,69,.12);color:#fff}
 #mapStatus{font-family:sans-serif;font-size:12px;color:var(--teal2);margin-top:6px;line-height:1.4}
 
 /* ── social share ── */
@@ -441,7 +446,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   <span id="inputSection"></span>
   <section class="card">
     <h2>Enter your birth details</h2>
-    <p class="sub">Two fields. That's it. All computation runs in your browser — nothing is sent anywhere.</p>
+    <p class="sub">Enter your Gregorian birthday to find your <strong>Janma Tithi</strong> (lunar date) and <strong>Janma Nakshatra</strong> (birth star) — your real Indian birthday, recalculated each year. All computation runs in your browser — nothing is sent anywhere.</p>
     <form id="form" onsubmit="return false;">
       <div class="row">
         <div class="field">
@@ -899,7 +904,6 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
 /* ── ASTRONOMY ENGINE ── */
@@ -1060,7 +1064,51 @@ async function searchMapLocation(){
   }catch(e){$('mapStatus').textContent='Search failed — click the map to set location.';$('mapStatus').style.color='var(--warn)'}
 }
 $('mapSearchBtn').addEventListener('click',searchMapLocation);
-$('mapSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchMapLocation()}});
+$('mapSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();_hideSug();searchMapLocation()}});
+
+/* ── Location autocomplete ── */
+(function(){
+  const sugBox=document.createElement('div');
+  sugBox.id='locSugBox';
+  $('mapSearch').parentNode.appendChild(sugBox);
+  let timer=null;
+  function hideSug(){sugBox.style.display='none'}
+  window._hideSug=hideSug;
+  function showSugs(items){
+    if(!items.length){hideSug();return}
+    sugBox.innerHTML=items.map(it=>{
+      const label=it.display_name.split(',').slice(0,3).join(', ');
+      return'<div class="loc-sug-item" data-lat="'+it.lat+'" data-lon="'+it.lon
+            +'" data-full="'+encodeURIComponent(it.display_name)+'">'+label+'</div>';
+    }).join('');
+    sugBox.querySelectorAll('.loc-sug-item').forEach(el=>{
+      el.addEventListener('mousedown',function(e){
+        e.preventDefault();
+        const lat=+this.dataset.lat,lon=+this.dataset.lon;
+        const full=decodeURIComponent(this.dataset.full);
+        $('mapSearch').value=full.split(',').slice(0,2).join(', ');
+        leafletMap.setView([lat,lon],12);setMapPin(lat,lon);
+        $('mapStatus').textContent='📍 '+full.split(',').slice(0,3).join(', ');
+        $('mapStatus').style.color='var(--teal2)';
+        hideSug();
+      });
+    });
+    sugBox.style.display='block';
+  }
+  $('mapSearch').addEventListener('input',function(){
+    clearTimeout(timer);
+    const q=this.value.trim();
+    if(q.length<2){hideSug();return}
+    timer=setTimeout(async()=>{
+      try{
+        const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&q='+encodeURIComponent(q),{headers:{'Accept-Language':'en'}});
+        showSugs(await r.json());
+      }catch(e){hideSug()}
+    },380);
+  });
+  $('mapSearch').addEventListener('blur',()=>setTimeout(hideSug,150));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')hideSug()});
+})();
 
 // Init map after Leaflet loads
 if(typeof L!=='undefined')initLeafletMap();
@@ -1219,164 +1267,37 @@ function showNaming(){
 }
 
 /* ── share card ── */
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
-}
-function drawLogoCard(ctx,cx,cy,r){
-  ctx.save();
-  // Teal arc (open gap top-right ~40deg)
-  ctx.strokeStyle='#1a7a6e';ctx.lineWidth=r*0.14;ctx.lineCap='round';
-  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI*0.22,Math.PI*1.95);ctx.stroke();
-  // Gold crescent
-  ctx.fillStyle='#e8b545';
-  ctx.beginPath();ctx.arc(cx-r*0.07,cy+r*0.06,r*0.56,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#071f1c';
-  ctx.beginPath();ctx.arc(cx+r*0.19,cy-r*0.01,r*0.46,0,Math.PI*2);ctx.fill();
-  // 4-pointed stars
-  function star4(sx,sy,ro,ri){
-    ctx.fillStyle='#e8b545';ctx.beginPath();
-    for(let i=0;i<8;i++){const a=i*Math.PI/4-Math.PI/8;const rr=i%2===0?ro:ri;
-      if(i===0)ctx.moveTo(sx+rr*Math.cos(a),sy+rr*Math.sin(a));
-      else ctx.lineTo(sx+rr*Math.cos(a),sy+rr*Math.sin(a));}
-    ctx.closePath();ctx.fill();
-  }
-  star4(cx+r*0.47,cy-r*0.54,r*0.16,r*0.07);
-  star4(cx+r*0.73,cy-r*0.36,r*0.22,r*0.09);
-  ctx.restore();
-}
-const CARD_QR_URL='https://bharat-birthtime.pages.dev';
-function drawQR(ctx,x,y,size){
-  const holder=document.createElement('div');holder.style.display='none';document.body.appendChild(holder);
-  try{
-    new QRCode(holder,{text:CARD_QR_URL,width:size,height:size,
-      colorDark:'#e8b545',colorLight:'#071f1c',correctLevel:QRCode.CorrectLevel.M});
-    const qc=holder.querySelector('canvas');if(qc){
-      // White bg for QR
-      ctx.fillStyle='#fff';roundRect(ctx,x-6,y-6,size+12,size+12,8);ctx.fill();
-      ctx.drawImage(qc,x,y,size,size);
-    }
-  }catch(e){}
-  document.body.removeChild(holder);
-}
 function drawCard(){
   if(!PROF||!LAST.tb)return;
   const cv=$('cardCanvas'),ctx=cv.getContext('2d');
   const W=1080,H=1080;
-
-  // ── Background ──
-  const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#071f1c');bg.addColorStop(0.45,'#0e4a41');bg.addColorStop(1,'#071f1c');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-
-  // Radial centre glow
-  const glow=ctx.createRadialGradient(W/2,H*0.45,0,W/2,H*0.45,520);
-  glow.addColorStop(0,'rgba(20,100,88,0.35)');glow.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
-
-  // ── Decorative nakshatra ring ──
-  ctx.save();ctx.translate(W/2,H/2);
-  ctx.strokeStyle='rgba(232,181,69,0.07)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.arc(0,0,490,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.arc(0,0,460,0,Math.PI*2);ctx.stroke();
-  for(let i=0;i<27;i++){
-    const a=i/27*Math.PI*2;
-    ctx.beginPath();ctx.moveTo(Math.cos(a)*460,Math.sin(a)*460);
-    ctx.lineTo(Math.cos(a)*490,Math.sin(a)*490);ctx.stroke();
-  }
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#06302e');g.addColorStop(.55,'#0d5a51');g.addColorStop(1,'#0a4742');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.translate(W/2,H/2);ctx.strokeStyle='rgba(232,181,69,.12)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(0,0,468,0,Math.PI*2);ctx.stroke();
+  for(let i=0;i<27;i++){const a=i/27*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*452,Math.sin(a)*452);ctx.lineTo(Math.cos(a)*468,Math.sin(a)*468);ctx.stroke()}
   ctx.restore();
-
-  // ── Double border ──
-  ctx.strokeStyle='rgba(232,181,69,0.9)';ctx.lineWidth=2;ctx.strokeRect(34,34,W-68,H-68);
-  ctx.strokeStyle='rgba(232,181,69,0.2)';ctx.lineWidth=1;ctx.strokeRect(44,44,W-88,H-88);
-
-  // ── HEADER BAND ──
-  // Logo small, left-aligned
-  drawLogoCard(ctx,116,108,52);
-  // Brand text right of logo
-  ctx.textAlign='left';
-  ctx.font='700 16px sans-serif';ctx.fillStyle='rgba(207,229,218,0.6)';
-  ctx.fillText('BHARAT', 180, 96);
-  ctx.font='700 28px sans-serif';ctx.fillStyle='#e8b545';
-  ctx.fillText('BIRTHTIME', 180, 128);
-
-  // Thin horizontal rule
-  ctx.strokeStyle='rgba(232,181,69,0.4)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(68,162);ctx.lineTo(W-68,162);ctx.stroke();
-
-  // Year badge (right-aligned)
-  ctx.textAlign='right';
-  ctx.font='600 14px sans-serif';ctx.fillStyle='rgba(207,229,218,0.5)';
-  ctx.fillText('INDIAN BIRTHDAY', W-70, 96);
-  ctx.font='700 38px Georgia';ctx.fillStyle='rgba(232,181,69,0.85)';
-  ctx.fillText(String(LAST.year), W-70, 136);
-
-  // ── PERSON AREA ──
+  ctx.strokeStyle='#e8b545';ctx.lineWidth=3;ctx.strokeRect(42,42,W-84,H-84);
+  ctx.strokeStyle='rgba(232,181,69,.3)';ctx.lineWidth=1;ctx.strokeRect(54,54,W-108,H-108);
   ctx.textAlign='center';
-  const MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const gregStr=PROF.d+' '+MOS[PROF.m-1]+' '+PROF.y;
-
-  const name=$('shareName').value.trim();
-  let y=210;
-  if(name){
-    ctx.font='italic 62px Georgia';ctx.fillStyle='#ffffff';
-    ctx.fillText(name,W/2,y);
-    // Name underline
-    const nw=Math.min(ctx.measureText(name).width,W-160);
-    ctx.strokeStyle='rgba(232,181,69,0.35)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(W/2-nw/2,y+10);ctx.lineTo(W/2+nw/2,y+10);ctx.stroke();
-    y+=56;
-  }
-  ctx.font='15px sans-serif';ctx.fillStyle='rgba(141,181,171,0.75)';
-  ctx.fillText('Born  '+gregStr+'  (Gregorian)',W/2,y+18);
-
-  // ── TITHI SECTION ──
-  y+=68;
-  ctx.font='12px sans-serif';ctx.fillStyle='rgba(159,197,187,0.75)';
-  ctx.fillText('TITHI  BIRTHDAY',W/2,y);
-  y+=64;
-  const td=LAST.tb.results[0];
-  ctx.font='bold 76px Georgia';ctx.fillStyle='#ffffff';
-  ctx.fillText(td?fmt(td):'—',W/2,y);y+=46;
-  ctx.font='italic 28px Georgia';ctx.fillStyle='rgba(207,229,218,0.8)';
-  ctx.fillText(td?td.weekday:'',W/2,y);y+=42;
-  ctx.font='24px Georgia';ctx.fillStyle='#e8b545';
-  ctx.fillText((PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:PROF.masa.name)+' · '+PROF.tithiLbl,W/2,y);
-
-  // ── ORNAMENT DIVIDER ──
-  y+=58;
-  ctx.strokeStyle='rgba(232,181,69,0.25)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(130,y);ctx.lineTo(W/2-36,y);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(W/2+36,y);ctx.lineTo(W-130,y);ctx.stroke();
-  ctx.font='22px Georgia';ctx.fillStyle='rgba(232,181,69,0.55)';ctx.fillText('❖',W/2,y+7);
-
-  // ── NAKSHATRA SECTION ──
-  y+=52;
-  ctx.font='12px sans-serif';ctx.fillStyle='rgba(159,197,187,0.75)';
-  ctx.fillText('STAR  BIRTHDAY  ·  '+PROF.nakName.toUpperCase(),W/2,y);
-  y+=58;
-  const nd=LAST.nb.results;
-  ctx.font='bold 58px Georgia';ctx.fillStyle='#ffffff';
-  ctx.fillText(nd.length?nd.map(fmtS).join('  &  ')+' '+LAST.year:'—',W/2,y);
-
-  // ── FOOTER ──
-  const FY=H-128;
-  ctx.strokeStyle='rgba(232,181,69,0.25)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(68,FY);ctx.lineTo(W-68,FY);ctx.stroke();
-
-  // QR code bottom-right
-  drawQR(ctx,W-186,FY+14,100);
-
-  // URL + tagline bottom-left/centre
-  ctx.textAlign='left';
-  ctx.font='700 18px sans-serif';ctx.fillStyle='#e8b545';
-  ctx.fillText('bharat-birthtime.pages.dev',78,FY+52);
-  ctx.font='13px sans-serif';ctx.fillStyle='rgba(141,181,171,0.65)';
-  ctx.fillText('Find your Indian astrological birthday',78,FY+76);
-  ctx.fillText('Scan QR or visit →',78,FY+96);
-
+  ctx.fillStyle='#e8b545';ctx.font='80px Georgia';ctx.fillText('ॐ',W/2,160);
+  ctx.font='600 28px sans-serif';ctx.fillStyle='#cfe5da';ctx.fillText('I N D I A N   B I R T H D A Y   ·   '+LAST.year,W/2,220);
+  const _MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  ctx.font='22px sans-serif';ctx.fillStyle='rgba(141,181,171,0.72)';
+  ctx.fillText('Born  '+PROF.d+' '+_MOS[PROF.m-1]+' '+PROF.y+'  ·  Gregorian',W/2,260);
+  let y=318;const name=$('shareName').value.trim();
+  if(name){ctx.font='italic 54px Georgia';ctx.fillStyle='#fff';ctx.fillText(name,W/2,y);y+=62}
+  y+=40;ctx.font='26px sans-serif';ctx.fillStyle='#9fc5bb';ctx.fillText('🌙  TITHI BIRTHDAY',W/2,y);y+=80;
+  ctx.font='bold 74px Georgia';ctx.fillStyle='#fff';
+  const td=LAST.tb.results[0];ctx.fillText(td?fmt(td):'—',W/2,y);y+=50;
+  ctx.font='34px Georgia';ctx.fillStyle='#cfe5da';ctx.fillText(td?td.weekday:'',W/2,y);y+=54;
+  ctx.font='32px Georgia';ctx.fillStyle='#e8b545';ctx.fillText((PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:PROF.masa.name)+' · '+PROF.tithiLbl,W/2,y);
+  y+=60;ctx.fillStyle='rgba(232,181,69,.55)';ctx.font='28px Georgia';ctx.fillText('❖',W/2,y);
+  y+=56;ctx.font='26px sans-serif';ctx.fillStyle='#9fc5bb';ctx.fillText('⭐  STAR BIRTHDAY  ·  '+PROF.nakName.toUpperCase(),W/2,y);y+=62;
+  ctx.font='bold 50px Georgia';ctx.fillStyle='#fff';
+  const nd=LAST.nb.results;ctx.fillText(nd.length?nd.map(fmtS).join('  &  ')+' '+LAST.year:'—',W/2,y);
+  ctx.font='24px sans-serif';ctx.fillStyle='#8db5ab';ctx.fillText('Computed the Vedic way · Bharat Birthtime',W/2,H-88);
   $('cardPreview').src=cv.toDataURL('image/png');
 }
 function shareText(){const td=LAST.tb.results[0];const nd=LAST.nb.results;let t='🪔 My Indian birthday '+LAST.year+': '+(td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:'')+' '+PROF.tithiLbl:'—');if(nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;t+='. Find yours ✨ bharat-birthtime';return t}

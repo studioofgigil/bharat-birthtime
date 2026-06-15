@@ -142,6 +142,33 @@ Search for `bharatbirthtime.in` in the HTML to find all occurrences.
 
 ---
 
+## Git tagging — version anchors
+
+Tag every release so you can jump back to any named version instantly.
+
+**After each push, run:**
+```bash
+cd "/Users/veerbandi/Claude/Projects/Bharat Birthtime"
+git tag v1.5          # use the version number from CHANGELOG.md
+git push --tags
+```
+
+**To list all tags:**
+```bash
+git tag
+```
+
+**To jump back to a tagged version (read-only inspection):**
+```bash
+git checkout v1.4
+# to return to latest:
+git checkout main
+```
+
+**Tagging convention used in this project:** `v<major>.<minor>` — increment minor for feature additions, major for full redesigns.
+
+---
+
 ## Future instructions — add below this line
 
 *(Paste new deployment notes, domain setup steps, analytics setup, or any other guides here as the project grows)*
