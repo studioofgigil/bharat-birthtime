@@ -1333,12 +1333,12 @@ function drawCard(){
   // Footer: website URL + tagline
   ctx.textAlign='center';
   ctx.font='700 26px sans-serif';ctx.fillStyle='#e8b545';
-  ctx.fillText('bharat-birthtime.pages.dev',W/2,H-76); // update to bharatbirthtime.in when domain is live
+  ctx.fillText('bharatbirthtime.in',W/2,H-76);
   ctx.font='20px sans-serif';ctx.fillStyle='rgba(141,181,171,0.65)';
   ctx.fillText('Computed the Vedic way',W/2,H-44);
   $('cardPreview').src=cv.toDataURL('image/png');
 }
-function shareText(){const td=LAST.tb.results[0];const nd=LAST.nb.results;let t='🪔 My Indian birthday '+LAST.year+': '+(td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:'')+' '+PROF.tithiLbl:'—');if(nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;t+='. Find yours ✨ bharat-birthtime';return t}
+function shareText(){const td=LAST.tb.results[0];const nd=LAST.nb.results;let t='🪔 My Indian birthday '+LAST.year+': '+(td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:'')+' '+PROF.tithiLbl:'—');if(nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;t+='. Find yours ✨ https://bharatbirthtime.in';return t}
 $('waBtn').addEventListener('click',async()=>{if(!LAST.tb)return;const text=shareText();try{const blob=await new Promise(res=>$('cardCanvas').toBlob(res,'image/png'));const file=new File([blob],'indian-birthday-'+LAST.year+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});return}}catch(e){if(e&&e.name==='AbortError')return}window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank')});
 $('dlBtn').addEventListener('click',()=>{if(!LAST.tb)return;const a=document.createElement('a');a.download='indian-birthday-'+LAST.year+'.png';a.href=$('cardCanvas').toDataURL('image/png');a.click()});
 
@@ -1702,7 +1702,7 @@ function shareText(){
   let t='🪔 My Indian birthday '+LAST.year+': ';
   if(td)t+=fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+td.masaName+' '+PROF.tithiLbl;
   if(nd&&nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;
-  t+=' ✨ Find yours at Bharat Birthtime';
+  t+=' ✨ Find yours at https://bharatbirthtime.in';
   return t;
 }
 function updateSocialLinks(){
