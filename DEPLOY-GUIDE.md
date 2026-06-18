@@ -11,6 +11,7 @@
 | Code files | Local Mac folder | `/Users/veerbandi/Claude/Projects/Bharat Birthtime/` |
 | Version control | GitHub | https://github.com/studioofgigil/bharat-birthtime |
 | Hosting | Cloudflare Pages | https://bharat-birthtime.pages.dev |
+| Custom domain | Cloudflare + BigRock | https://birthstarday.com |
 | Auto-deploy | On every `git push` to `main` | ~30–60 sec lag |
 
 ---

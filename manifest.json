@@ -1,6 +1,6 @@
 {
-  "name": "Bharat Birthtime",
-  "short_name": "BharatBday",
+  "name": "Birthstarday",
+  "short_name": "Birthstarday",
   "description": "Find your Indian birthday — Janma Tithi and Nakshatra for any year",
   "start_url": "/",
   "scope": "/",

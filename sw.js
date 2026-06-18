@@ -1,9 +1,8 @@
-/* Bharat Birthtime — Service Worker */
-const CACHE = 'bb-v1';
+/* Birthstarday — Service Worker */
+const CACHE = 'bsd-v1';
 const CORE = [
   '/',
   '/index.html',
-  '/bharat-birthtime.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
@@ -42,19 +41,19 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(c => c.put(e.request, clone));
         return res;
       })
-      .catch(() => caches.match(e.request).then(r => r || caches.match('/bharat-birthtime.html')))
+      .catch(() => caches.match(e.request).then(r => r || caches.match('/index.html')))
   );
 });
 
 /* Push notification handler */
 self.addEventListener('push', e => {
   const data = e.data ? e.data.json() : {};
-  const title = data.title || 'Bharat Birthtime 🌙';
+  const title = data.title || 'Birthstarday 🌙';
   const options = {
     body: data.body || 'Your Janma Tithi is approaching — check your Indian birthday!',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
-    tag: 'bb-reminder',
+    tag: 'bsd-reminder',
     data: { url: data.url || '/' }
   };
   e.waitUntil(self.registration.showNotification(title, options));

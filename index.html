@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bharat Birthtime — Your Indian Astrological Birthday</title>
+<title>Birthstarday — Your Indian Astrological Birthday</title>
 <meta name="description" content="Find your Indian astrological birthday — the day the Sun and Moon return to the exact alignment at your birth. Tithi (lunisolar) and Nakshatra (star) methods.">
-<meta property="og:title" content="Bharat Birthtime — Your Indian Astrological Birthday">
+<meta property="og:title" content="Birthstarday — Your Indian Astrological Birthday">
 <meta property="og:description" content="Your real birthday — the day the cosmos remembers. Find your Tithi birthday and Star birthday using the ancient Indian panchanga system. Free, private, all computation in your browser.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://bharat-birthtime.pages.dev">
-<meta property="og:image" content="https://bharat-birthtime.pages.dev/og-image.png">
+<meta property="og:url" content="https://birthstarday.com">
+<meta property="og:image" content="https://birthstarday.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Bharat Birthtime — nakshatra wheel and moon over India, with the tagline: Find your Indian astrological birthday">
+<meta property="og:image:alt" content="Birthstarday — nakshatra wheel and moon over India, with the tagline: Find your Indian astrological birthday">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Bharat Birthtime — Find Your Indian Birthday">
+<meta name="twitter:title" content="Birthstarday — Find Your Indian Birthday">
 <meta name="twitter:description" content="The day the Sun and Moon return to the alignment of your birth. Tithi + Nakshatra methods. Free, all computation in browser.">
-<meta name="twitter:image" content="https://bharat-birthtime.pages.dev/og-image.png">
+<meta name="twitter:image" content="https://birthstarday.com/og-image.png">
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d5a51">
@@ -374,6 +374,67 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   .card{box-shadow:none!important;border:1px solid #ccc!important;page-break-inside:avoid}
   body{background:#fff!important}.pitem{background:#f5f5f5!important}
 }
+/* ── Reward Chest ── */
+.chest-wrap{margin-top:24px;border-top:1px solid var(--line);padding-top:20px}
+.chest-title{font-family:sans-serif;font-size:16px;color:var(--teal2);font-weight:600;margin-bottom:4px;text-align:center}
+.chest-sub{font-family:sans-serif;font-size:12px;color:var(--ink2);text-align:center;margin-bottom:14px}
+.chest-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:620px){.chest-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:390px){.chest-grid{grid-template-columns:repeat(2,1fr)}}
+.chest-slot{border:1.5px solid var(--line);border-radius:14px;padding:12px 8px 10px;text-align:center;
+  min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;background:#fff;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.chest-slot.locked{opacity:.6}
+.chest-slot.locked::after{content:'🔒';position:absolute;top:6px;right:7px;font-size:10px}
+.chest-slot.unlocked{border-color:var(--teal);background:linear-gradient(135deg,#f5fbf9,#fffef5);
+  box-shadow:0 0 0 3px rgba(14,111,104,.1),0 4px 18px rgba(14,111,104,.12);
+  animation:slotPop .5s cubic-bezier(.34,1.56,.64,1)}
+.chest-slot.unlocked::after{content:'✓';position:absolute;top:6px;right:7px;font-size:11px;color:var(--teal2);font-weight:700}
+@keyframes slotPop{0%{transform:scale(.85)}65%{transform:scale(1.07)}100%{transform:scale(1)}}
+.slot-icon{font-size:26px;line-height:1;margin-bottom:2px}
+.slot-label{font-family:sans-serif;font-size:11px;color:var(--ink);font-weight:600;line-height:1.3}
+.slot-hint{font-family:sans-serif;font-size:10px;color:#aaa;margin-top:2px;line-height:1.3}
+.slot-val{font-family:sans-serif;font-size:11.5px;color:var(--teal2);font-weight:600;line-height:1.4;margin-top:2px}
+.slot-sub{font-family:sans-serif;font-size:10px;color:var(--ink2);line-height:1.3}
+/* Rarity donut */
+.rarity-svg{width:52px;height:52px}
+/* ── Floating Feedback Badge ── */
+#fbBadge{position:fixed;bottom:82px;left:18px;z-index:9997;display:flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,#f5a623,#e8821a);color:#fff;font-family:sans-serif;
+  font-size:13px;font-weight:700;padding:10px 16px 10px 13px;border-radius:50px;
+  box-shadow:0 4px 16px rgba(240,148,31,.5);cursor:pointer;border:none;
+  opacity:0;pointer-events:none;transition:opacity .4s,transform .2s}
+#fbBadge.show{opacity:1;pointer-events:auto;animation:badgePulse 2.8s ease-in-out infinite}
+#fbBadge:hover{transform:scale(1.06);animation:none!important}
+@keyframes badgePulse{0%,100%{box-shadow:0 4px 16px rgba(240,148,31,.5)}
+  50%{box-shadow:0 4px 26px rgba(240,148,31,.8),0 0 0 7px rgba(240,148,31,.12)}}
+/* ── Feedback Panel (slide-up) ── */
+#fbOverlay{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:10000;
+  display:none;align-items:flex-end;justify-content:center}
+#fbOverlay.open{display:flex}
+#fbPanel{background:#fff;border-radius:22px 22px 0 0;padding:26px 22px 34px;
+  width:100%;max-width:500px;box-shadow:0 -6px 36px rgba(0,0,0,.16);
+  transform:translateY(100%);transition:transform .36s cubic-bezier(.34,1.1,.64,1);position:relative}
+#fbOverlay.open #fbPanel{transform:translateY(0)}
+#fbPanel h3{font-family:Georgia,serif;font-size:19px;color:var(--teal2);margin:0 0 5px;text-align:center}
+#fbPanel .fb-desc{font-family:sans-serif;font-size:13px;color:var(--ink2);text-align:center;margin:0 0 18px}
+.fb-stars{display:flex;justify-content:center;gap:6px;margin-bottom:14px}
+.fb-star{font-size:36px;cursor:pointer;color:#ddd;background:none;border:none;padding:2px 3px;
+  transition:transform .15s,color .15s;line-height:1}
+.fb-star.lit{color:#f5a623}
+.fb-star:hover{transform:scale(1.2)}
+#fbText{width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-family:sans-serif;font-size:13.5px;resize:none;height:76px;
+  color:var(--ink);margin-bottom:14px;display:none;outline:none}
+#fbText:focus{border-color:var(--teal)}
+#fbSubmit{width:100%;padding:13px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#f5a623,#e8821a);color:#fff;
+  font-family:sans-serif;font-size:15px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 14px rgba(240,148,31,.35);transition:opacity .2s}
+#fbSubmit:disabled{opacity:.45;cursor:default}
+#fbClose{position:absolute;top:14px;right:16px;background:none;border:none;
+  font-size:24px;color:var(--ink2);cursor:pointer;line-height:1;padding:2px 6px}
+#fbThanks{display:none;text-align:center;padding:8px 0 4px}
 </style>
 </head>
 <body>
@@ -381,7 +442,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
 <div class="outer">
 <header>
   <div id="headerLogo" style="width:72px;height:72px;margin:0 auto 10px"></div>
-  <h1>Bharat Birthtime</h1>
+  <h1>Birthstarday</h1>
   <p class="tag">Your birthday, the way the sky remembers it — the day each year the Sun and Moon return to the alignment of your birth.</p>
 </header>
 
@@ -623,6 +684,51 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
 
       <canvas id="cardCanvas" width="1080" height="1080" style="display:none"></canvas>
     </div>
+
+    <!-- ── REWARD CHEST ── -->
+    <div class="chest-wrap" id="rewardChest" style="display:none">
+      <div class="chest-title">🎁 Your Birthday Discoveries</div>
+      <div class="chest-sub">Complete each action to unlock a cosmic insight about your birth</div>
+      <div class="chest-grid">
+
+        <!-- Slot 1: Auto-unlocked — Metonic Year -->
+        <div class="chest-slot locked" id="slot1">
+          <div class="slot-icon">🔄</div>
+          <div class="slot-label">Metonic Year</div>
+          <div class="slot-hint">Auto-unlocks</div>
+        </div>
+
+        <!-- Slot 2: Feedback → Rarity Score -->
+        <div class="chest-slot locked" id="slot2">
+          <div class="slot-icon">⭐</div>
+          <div class="slot-label">Rarity Score</div>
+          <div class="slot-hint">Rate us to unlock</div>
+        </div>
+
+        <!-- Slot 3: Share card → Nakshatra deity -->
+        <div class="chest-slot locked" id="slot3">
+          <div class="slot-icon">🌟</div>
+          <div class="slot-label">Birth Star Deity</div>
+          <div class="slot-hint">Share your card</div>
+        </div>
+
+        <!-- Slot 4: Share site → 10-yr calendar -->
+        <div class="chest-slot locked" id="slot4">
+          <div class="slot-icon">📅</div>
+          <div class="slot-label">10-Year Calendar</div>
+          <div class="slot-hint">Share this site</div>
+        </div>
+
+        <!-- Slot 5: Annual return -->
+        <div class="chest-slot locked" id="slot5">
+          <div class="slot-icon">🌙</div>
+          <div class="slot-label">Annual Mystery</div>
+          <div class="slot-hint">Return on your Indian birthday</div>
+        </div>
+
+      </div>
+    </div><!-- /chest -->
+
   </section>
 
   <!-- EXPLAINER: WHAT -->
@@ -741,7 +847,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
     <h2><span class="num">ABOUT</span> About this page</h2>
     <div class="about-grid">
       <div class="about-col">
-        <p style="margin-bottom:10px">Bharat Birthtime makes the ancient Indian panchanga calendar accessible to anyone — no jyotishi needed for the basic question of "what is my Indian birthday this year?"</p>
+        <p style="margin-bottom:10px">Birthstarday makes the ancient Indian panchanga calendar accessible to anyone — no jyotishi needed for the basic question of "what is my Indian birthday this year?"</p>
         <p><strong>All computation runs entirely in your browser.</strong> No data — birth date, time, or location — is sent to any server. The page works offline once loaded.</p>
       </div>
       <div class="about-col">
@@ -802,58 +908,53 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   </section>
 
   <!-- CONTACT -->
-  <section class="card" id="contactSection">
+  <section class="card" id="contactSection" style="text-align:center">
     <h2><span class="num">✉</span> Contact &amp; Feedback</h2>
-    <div class="about-grid">
-      <div class="about-col">
-        <p style="margin-bottom:12px">Have a question about your panchanga results, found an error, or want to share feedback? We'd love to hear from you.</p>
-        <p style="margin-bottom:6px"><strong>Email</strong><br>
-          <a class="contact-link" href="mailto:studioofgigil@gmail.com">studioofgigil@gmail.com</a></p>
-      </div>
-      <div class="about-col">
-        <p style="margin-bottom:10px"><strong>Before writing to us:</strong></p>
-        <ul style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);line-height:1.9;padding-left:18px;text-align:left">
-          <li>Make sure you've entered birth time as accurately as possible</li>
-          <li>Use the map pin for best location accuracy</li>
-          <li>Check the FAQ section — your question may be answered there</li>
-          <li>For ritual decisions, always confirm with your local panchangam or purohit</li>
-        </ul>
-        <p style="margin-top:12px;font-family:sans-serif;font-size:12.5px;color:var(--ink2)">🔒 All calculations run entirely in your browser. No personal data is ever transmitted or stored by this page.</p>
-      </div>
-    </div>
+    <p style="font-family:sans-serif;font-size:14px;color:var(--ink2);max-width:480px;margin:0 auto 18px;line-height:1.7">
+      Found an error, have a question, or want to share feedback? Quick rating takes 10 seconds — or write to us directly.
+    </p>
+    <button onclick="openFeedback()" class="btn gold" style="font-size:15px;padding:12px 28px;margin-bottom:18px">
+      ⭐ Leave feedback &amp; unlock your Rarity Score
+    </button>
+    <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin:0">
+      For detailed queries: <a class="contact-link" href="mailto:studioofgigil@gmail.com">studioofgigil@gmail.com</a>
+    </p>
+    <p style="font-family:sans-serif;font-size:12px;color:var(--ink2);margin-top:10px">
+      🔒 All calculations run entirely in your browser. No personal data is ever transmitted or stored.
+    </p>
   </section>
 
   <!-- SHARE THIS WEBSITE -->
   <section class="card" style="text-align:center;padding-bottom:28px">
-    <h2><span class="num">🔗</span> Share Bharat Birthtime</h2>
+    <h2><span class="num">🔗</span> Share Birthstarday</h2>
     <p style="font-family:sans-serif;font-size:14px;color:var(--ink2);max-width:500px;margin:0 auto 20px;line-height:1.7">Know someone who'd love to find their Indian birthday? Share this page with them.</p>
     <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:580px;margin:0 auto">
       <!-- WhatsApp -->
-      <a id="siteWaBtn" href="https://wa.me/?text=Find%20your%20Indian%20astrological%20birthday%20%F0%9F%AA%94%20%E2%80%94%20Janma%20Tithi%20%2B%20Nakshatra%20for%20any%20year.%20Free%2C%20private%2C%20runs%20in%20your%20browser%3A%20https%3A%2F%2Fbharat-birthtime.pages.dev" target="_blank" rel="noopener"
+      <a id="siteWaBtn" href="#" onclick="(function(e){e.preventDefault();const txt='Find your Indian astrological birthday 🪤 — Janma Tithi + Nakshatra for any year. Free, private, runs in your browser: https://birthstarday.com';const mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);window.open(mob?'https://wa.me/?text='+encodeURIComponent(txt):'https://web.whatsapp.com/send?text='+encodeURIComponent(txt),'_blank');})(event)" rel="noopener"
         style="display:inline-flex;align-items:center;gap:7px;background:#25D366;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         WhatsApp
       </a>
       <!-- Twitter / X -->
-      <a id="siteTwBtn" href="https://twitter.com/intent/tweet?text=Find%20your%20Indian%20astrological%20birthday%20%F0%9F%AA%94%20%E2%80%94%20Janma%20Tithi%20%2B%20Nakshatra%20for%20any%20year.%20Free%2C%20private%2C%20all%20in-browser.&url=https%3A%2F%2Fbharat-birthtime.pages.dev" target="_blank" rel="noopener"
+      <a id="siteTwBtn" href="https://twitter.com/intent/tweet?text=Find%20your%20Indian%20astrological%20birthday%20%F0%9F%AA%94%20%E2%80%94%20Janma%20Tithi%20%2B%20Nakshatra%20for%20any%20year.%20Free%2C%20private%2C%20all%20in-browser.&url=https%3A%2F%2Fbirthstarday.com" target="_blank" rel="noopener"
         style="display:inline-flex;align-items:center;gap:7px;background:#000;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Twitter / X
       </a>
       <!-- Facebook -->
-      <a id="siteFbBtn" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbharat-birthtime.pages.dev" target="_blank" rel="noopener"
+      <a id="siteFbBtn" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbirthstarday.com" target="_blank" rel="noopener"
         style="display:inline-flex;align-items:center;gap:7px;background:#1877F2;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         Facebook
       </a>
       <!-- LinkedIn -->
-      <a id="siteLiBtn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fbharat-birthtime.pages.dev" target="_blank" rel="noopener"
+      <a id="siteLiBtn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fbirthstarday.com" target="_blank" rel="noopener"
         style="display:inline-flex;align-items:center;gap:7px;background:#0A66C2;color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
         LinkedIn
       </a>
       <!-- Copy URL -->
-      <button onclick="(function(){const u='https://bharat-birthtime.pages.dev';navigator.clipboard.writeText(u).then(()=>{const b=document.getElementById('siteCopyConfirm');b.style.display='inline';setTimeout(()=>b.style.display='none',2500)});})()"
+      <button onclick="(function(){const u='https://birthstarday.com';navigator.clipboard.writeText(u).then(()=>{const b=document.getElementById('siteCopyConfirm');b.style.display='inline';setTimeout(()=>b.style.display='none',2500)});})()"
         style="display:inline-flex;align-items:center;gap:7px;background:var(--teal);color:#fff;font-family:sans-serif;font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:8px;border:none;cursor:pointer">
         🔗 Copy link
       </button>
@@ -861,7 +962,40 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
     <div id="siteCopyConfirm" style="display:none;margin-top:10px;font-family:sans-serif;font-size:12.5px;color:var(--teal2);font-weight:600">✓ Link copied — paste anywhere!</div>
   </section>
 
+
+  <!-- Floating feedback badge -->
+  <button id="fbBadge" aria-label="Rate your experience" onclick="openFeedback()">
+    <span style="font-size:18px">⭐</span> Rate us
+  </button>
+
 </main>
+
+<!-- FEEDBACK PANEL -->
+<div id="fbOverlay" onclick="if(event.target===this)closeFeedback()">
+  <div id="fbPanel">
+    <button id="fbClose" onclick="closeFeedback()" aria-label="Close">×</button>
+    <!-- Rating UI -->
+    <div id="fbRatingUI">
+      <h3>How was your experience?</h3>
+      <p class="fb-desc">Your feedback helps us improve Birthstarday 🙏</p>
+      <div class="fb-stars" role="group" aria-label="Star rating">
+        <button class="fb-star" data-v="1" onclick="fbRate(1)" aria-label="1 star">★</button>
+        <button class="fb-star" data-v="2" onclick="fbRate(2)" aria-label="2 stars">★</button>
+        <button class="fb-star" data-v="3" onclick="fbRate(3)" aria-label="3 stars">★</button>
+        <button class="fb-star" data-v="4" onclick="fbRate(4)" aria-label="4 stars">★</button>
+        <button class="fb-star" data-v="5" onclick="fbRate(5)" aria-label="5 stars">★</button>
+      </div>
+      <textarea id="fbText" placeholder="Tell us more (optional)…"></textarea>
+      <button id="fbSubmit" disabled onclick="submitFeedback()">Submit &amp; unlock your Rarity Score 🎁</button>
+    </div>
+    <!-- Thank-you state -->
+    <div id="fbThanks">
+      <span style="font-size:52px;display:block;margin-bottom:10px">🎉</span>
+      <p style="font-family:Georgia,serif;font-size:18px;color:var(--teal2);font-weight:600;margin:0 0 6px">Thank you!</p>
+      <p style="font-family:sans-serif;font-size:13.5px;color:var(--ink2);margin:0">Your Rarity Score is now unlocked in the chest below.</p>
+    </div>
+  </div>
+</div>
 
 <!-- RIGHT SIDEBAR -->
 <aside class="sidebar" id="rightBar">
@@ -878,7 +1012,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   </div>
 </aside>
 
-<footer>Bharat Birthtime · Lahiri ayanamsa · Amanta months · Sunrise rule · All computation in-browser · For ritual decisions confirm with your panchanga or purohit</footer>
+<footer>Birthstarday · Lahiri ayanamsa · Amanta months · Sunrise rule · All computation in-browser · For ritual decisions confirm with your panchanga or purohit</footer>
 </div>
 
 <div id="tipBox"></div>
@@ -1333,7 +1467,7 @@ function drawCard(){
   // Footer: website URL + tagline
   ctx.textAlign='center';
   ctx.font='700 26px sans-serif';ctx.fillStyle='#e8b545';
-  ctx.fillText('bharat-birthtime.pages.dev',W/2,H-76);
+  ctx.fillText('birthstarday.com',W/2,H-76);
   ctx.font='20px sans-serif';ctx.fillStyle='rgba(141,181,171,0.65)';
   ctx.fillText('Computed the Vedic way',W/2,H-44);
   $('cardPreview').src=cv.toDataURL('image/png');
@@ -1343,7 +1477,7 @@ function shareText(){
   let t='🪔 My Indian birthday: ';
   t+=td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+td.masaName+' '+PROF.tithiLbl:'—';
   if(nd&&nd.length)t+='\n⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ');
-  t+='\n\nFind yours free — it takes 30 seconds 👇\nhttps://bharat-birthtime.pages.dev';
+  t+='\n\nFind yours free — it takes 30 seconds 👇\nhttps://birthstarday.com';
   return t;
 }
 function revealReward(){
@@ -1356,16 +1490,27 @@ function revealReward(){
 $('waBtn').addEventListener('click',async()=>{
   if(!LAST.tb)return;
   const text=shareText();
-  let shared=false;
-  try{
-    const blob=await new Promise(res=>$('cardCanvas').toBlob(res,'image/png'));
-    const file=new File([blob],'indian-birthday.png',{type:'image/png'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],text});
-      shared=true;
-    }
-  }catch(e){if(e&&e.name==='AbortError')return;}
-  if(!shared){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // Mobile: try native Web Share API (can attach image); must handle async before any window.open
+  if(isMobile&&navigator.canShare){
+    try{
+      const blob=await new Promise(res=>$('cardCanvas').toBlob(res,'image/png'));
+      const file=new File([blob],'indian-birthday.png',{type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],text});
+        revealReward();return;
+      }
+    }catch(e){if(e&&e.name==='AbortError')return;}
+    // fallback within mobile
+    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+  } else if(isMobile){
+    // mobile without canShare
+    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+  } else {
+    // Desktop — window.open MUST be called synchronously (before any await) to avoid popup block
+    // WhatsApp Web works on all desktop browsers
+    window.open('https://web.whatsapp.com/send?text='+encodeURIComponent(text),'_blank');
+  }
   revealReward();
 });
 $('dlBtn').addEventListener('click',()=>{if(!LAST.tb)return;const a=document.createElement('a');a.download='indian-birthday-'+LAST.year+'.png';a.href=$('cardCanvas').toDataURL('image/png');a.click()});
@@ -1678,7 +1823,7 @@ function exportICS(personName,years){
   const namePrefix=name?name+' — ':'';
   const pad=n=>String(n).padStart(2,'0');
   const dt=(r,offset=0)=>{const d=new Date(r.year,r.month-1,r.day+(offset||0));return d.getFullYear()+''+pad(d.getMonth()+1)+''+pad(d.getDate())};
-  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Bharat Birthtime//EN\r\nCALSCALE:GREGORIAN\r\n';
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Birthstarday//EN\r\nCALSCALE:GREGORIAN\r\n';
   ics+='X-WR-CALNAME:'+(name?name+"'s Indian Birthdays":'Indian Birthdays')+'\r\n';
   const alarm='\r\nBEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:Indian birthday tomorrow — ';
   const curYr=new Date().getFullYear();
@@ -1688,20 +1833,20 @@ function exportICS(personName,years){
     for(const r of tb.results){
       const masa=(r.adhika?'Adhika ':'')+r.masaName;
       const summary='🌙 '+(name?name+' — ':'')+'Janma Tithi · '+masa+' '+PROF.tithiLbl;
-      ics+='BEGIN:VEVENT\r\nUID:tithi-'+dt(r)+'-'+yr+'@bharat-birthtime\r\n';
+      ics+='BEGIN:VEVENT\r\nUID:tithi-'+dt(r)+'-'+yr+'@birthstarday\r\n';
       ics+='DTSTART;VALUE=DATE:'+dt(r)+'\r\nDTEND;VALUE=DATE:'+dt(r,1)+'\r\n';
       ics+='SUMMARY:'+summary+'\r\n';
-      ics+='DESCRIPTION:Indian birthday – Tithi method\\nName: '+(name||'—')+'\\nMasa: '+masa+'\\nTithi: '+PROF.tithiLbl+'\\nNakshatra: '+PROF.nakName+'\\n\\nComputed by Bharat Birthtime\r\n';
+      ics+='DESCRIPTION:Indian birthday – Tithi method\\nName: '+(name||'—')+'\\nMasa: '+masa+'\\nTithi: '+PROF.tithiLbl+'\\nNakshatra: '+PROF.nakName+'\\n\\nComputed by Birthstarday\r\n';
       ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR';
       ics+=alarm+summary+'\r\nEND:VALARM\r\n';
       ics+='END:VEVENT\r\n';
     }
     for(const r of nb.results){
       const summary='⭐ '+(name?name+' — ':'')+'Janma Nakshatra · '+PROF.nakName;
-      ics+='BEGIN:VEVENT\r\nUID:star-'+dt(r)+'-'+yr+'@bharat-birthtime\r\n';
+      ics+='BEGIN:VEVENT\r\nUID:star-'+dt(r)+'-'+yr+'@birthstarday\r\n';
       ics+='DTSTART;VALUE=DATE:'+dt(r)+'\r\nDTEND;VALUE=DATE:'+dt(r,1)+'\r\n';
       ics+='SUMMARY:'+summary+'\r\n';
-      ics+='DESCRIPTION:Indian birthday – Star method\\nName: '+(name||'—')+'\\nNakshatra: '+PROF.nakName+'\\nSolar month: '+PROF.solarRashiName+' ('+PROF.solarTA+')\\n\\nComputed by Bharat Birthtime\r\n';
+      ics+='DESCRIPTION:Indian birthday – Star method\\nName: '+(name||'—')+'\\nNakshatra: '+PROF.nakName+'\\nSolar month: '+PROF.solarRashiName+' ('+PROF.solarTA+')\\n\\nComputed by Birthstarday\r\n';
       ics+='CATEGORIES:BIRTHDAY,INDIAN CALENDAR';
       ics+=alarm+summary+'\r\nEND:VALARM\r\n';
       ics+='END:VEVENT\r\n';
@@ -1731,14 +1876,14 @@ function shareText(){
   let t='🪔 My Indian birthday '+LAST.year+': ';
   if(td)t+=fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+td.masaName+' '+PROF.tithiLbl;
   if(nd&&nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;
-  t+=' ✨ Find yours at https://bharat-birthtime.pages.dev';
+  t+=' ✨ Find yours at https://birthstarday.com';
   return t;
 }
 function updateSocialLinks(){
   if(!LAST.tb)return;
   const text=shareText();
   // Use a canonical URL — file:// won't work for FB/LI; fall back to the page URL or a placeholder
-  const rawUrl=(window.location.protocol==='file:'?'https://bharat-birthtime.pages.dev':window.location.origin+window.location.pathname);
+  const rawUrl=(window.location.protocol==='file:'?'https://birthstarday.com':window.location.origin+window.location.pathname);
   const url=encodeURIComponent(rawUrl);
   const enc=encodeURIComponent(text);
   $('twitterShareBtn').href='https://twitter.com/intent/tweet?text='+enc+'&url='+url;
@@ -1752,6 +1897,237 @@ $('copyLinkBtn').addEventListener('click',()=>{
     btn.textContent='✓ Copied!';setTimeout(()=>btn.textContent=orig,2000);
   }).catch(()=>prompt('Copy this text:',text));
 });
+
+/* ══════════════════════════════════════════════
+   REWARD CHEST + FEEDBACK SYSTEM
+   ══════════════════════════════════════════════ */
+
+/* ── Nakshatra data (deity · ruling planet · spirit animal) ── */
+const NAK_DEITY=[
+  'Ashwini Kumaras','Yama','Agni','Prajapati','Soma','Rudra','Aditi','Brihaspati',
+  'Nagas','Pitrs','Bhaga','Aryaman','Savitar','Tvashtr','Vayu','Indra-Agni',
+  'Mitra','Indra','Nirriti','Apah','Vishve Devas','Vishnu','Ashta Vasus',
+  'Varuna','Aja Ekapada','Ahir Budhnya','Pushan'
+];
+const NAK_PLANET=[
+  'Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury','Ketu',
+  'Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury','Ketu','Venus',
+  'Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'
+];
+const NAK_ANIMAL=[
+  'Horse','Elephant','Sheep','Serpent','Serpent','Dog','Cat','Sheep','Cat','Rat',
+  'Rat','Cow','Buffalo','Tiger','Buffalo','Tiger','Deer','Deer','Dog','Monkey',
+  'Mongoose','Monkey','Lion','Horse','Lion','Cow','Elephant'
+];
+
+/* ── Tithi families ── */
+const TITHI_FAM=['Nanda','Bhadra','Jaya','Rikta','Purna'];
+const TITHI_FAM_DESC=['Joy & auspicious beginnings','Prosperity & steadiness','Victory & ambition','Release & renewal','Fullness & completion'];
+const TITHI_FAM_CLR=['#e07010','#1a7a4a','#1565c0','#6a4fc8','#b5860d'];
+
+/* ── Rarity score ── */
+function rarityScore(){
+  if(!PROF)return 20;
+  let s=20,t=PROF.tithi;
+  if(t===15)s+=20;else if(t===30)s+=15;
+  else if(t===11||t===26)s+=10;
+  else if(t===4||t===19)s+=8;
+  else if(t===9||t===24)s+=8;
+  else if(t===1||t===16)s+=5;
+  if(PROF.masa&&PROF.masa.adhika)s+=15;
+  if(t<=15)s+=5;
+  if(LAST.tb&&LAST.tb.results&&LAST.tb.results[0]&&LAST.tb.results[0].kshaya)s+=20;
+  const auspNak=[3,7,21,22,26];if(auspNak.includes(PROF.nakshatra))s+=8;
+  return Math.min(s,100);
+}
+function rarityTier(s){
+  if(s>=81)return{label:'Legendary',color:'#b5860d',emoji:'🌟'};
+  if(s>=66)return{label:'Epic',color:'#6a4fc8',emoji:'🟣'};
+  if(s>=51)return{label:'Rare',color:'#1565c0',emoji:'🔵'};
+  if(s>=36)return{label:'Uncommon',color:'#1a7a4a',emoji:'🟢'};
+  return{label:'Common',color:'#607d8b',emoji:'⚪'};
+}
+
+/* ── Metonic year ── */
+function nextMetonicYear(){
+  if(!PROF)return null;
+  const now=new Date().getFullYear();
+  let y=PROF.y;
+  while(y<=now)y+=19;
+  return y;
+}
+
+/* ── Chest state (persisted in localStorage keyed to birth date) ── */
+function chestKey(){return PROF?'bsd_chest_'+PROF.y+'_'+PROF.m+'_'+PROF.d:null;}
+function getChestState(){
+  const k=chestKey();if(!k)return{};
+  try{return JSON.parse(localStorage.getItem(k)||'{}')}catch(e){return{}}
+}
+function setChestUnlocked(n){
+  const k=chestKey();if(!k)return;
+  const s=getChestState();s['s'+n]=true;
+  try{localStorage.setItem(k,JSON.stringify(s))}catch(e){}
+}
+
+/* ── Render a single slot as unlocked ── */
+function unlockSlot(n,content){
+  const el=$('slot'+n);if(!el||el.classList.contains('unlocked'))return;
+  el.innerHTML=content;
+  el.classList.remove('locked');
+  el.classList.add('unlocked');
+  setChestUnlocked(n);
+}
+
+/* ── Slot content builders ── */
+function slot1Content(){
+  const yr=nextMetonicYear();
+  return'<div class="slot-icon">🔄</div>'
+    +'<div class="slot-label">Metonic Year</div>'
+    +'<div class="slot-val">'+(yr||'—')+'</div>'
+    +'<div class="slot-sub">Your two birthdays<br>nearly align</div>';
+}
+function slot2Content(){
+  const s=rarityScore(),tier=rarityTier(s);
+  const pct=s/100,r=22,circ=2*Math.PI*r;
+  const dash=pct*circ,gap=circ-dash;
+  return'<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'
+    +'<svg class="rarity-svg" viewBox="0 0 56 56">'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#eee" stroke-width="5"/>'
+    +'<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="'+tier.color+'" stroke-width="5"'
+    +' stroke-dasharray="'+dash.toFixed(1)+' '+gap.toFixed(1)+'"'
+    +' stroke-linecap="round" transform="rotate(-90 28 28)"/>'
+    +'<text x="28" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="'+tier.color+'">'+s+'</text>'
+    +'</svg>'
+    +'<div class="slot-label">'+tier.emoji+' '+tier.label+'</div>'
+    +'<div class="slot-sub">'+(PROF.tithi===15?'Pournima birth':PROF.tithi===30?'Amavasya birth':TITHI_FAM_DESC[(PROF.tithi-1)%5].split('&')[0].trim())+'</div>'
+    +'</div>';
+}
+function slot3Content(){
+  if(!PROF)return'';
+  const n=PROF.nakshatra;
+  return'<div class="slot-icon">🌟</div>'
+    +'<div class="slot-label">'+NAK[n]+'</div>'
+    +'<div class="slot-val">'+NAK_DEITY[n]+'</div>'
+    +'<div class="slot-sub">'+NAK_PLANET[n]+' · '+NAK_ANIMAL[n]+'</div>';
+}
+function slot4Content(){
+  return'<div class="slot-icon">📅</div>'
+    +'<div class="slot-label">10-Year Calendar</div>'
+    +'<div class="slot-val" style="font-size:10.5px">Unlocked!</div>'
+    +'<div class="slot-sub">Use slider below<br>to export 10 years</div>';
+}
+function slot5Content(){
+  // Show what's astronomically special THIS year on their birthday
+  if(!LAST.tb||!LAST.tb.results)return'<div class="slot-icon">🌙</div><div class="slot-label">Annual Mystery</div><div class="slot-sub">Return on your<br>Indian birthday</div>';
+  const thisYr=new Date().getFullYear();
+  const r=LAST.tb.results.find(x=>x.year===thisYr)||LAST.tb.results[0];
+  const t=r?r.masaName+' '+r.tithiLbl:'';
+  return'<div class="slot-icon">🌙</div>'
+    +'<div class="slot-label">This Year</div>'
+    +'<div class="slot-val" style="font-size:10px">'+t+'</div>'
+    +'<div class="slot-sub">Come back each<br>birthday for updates</div>';
+}
+
+/* ── Extend ICS slider to 10 years when slot 4 unlocked ── */
+function extendCalendarSlider(){
+  const sl=$('icsYears');if(sl&&parseInt(sl.max)<10){sl.max=10;}
+}
+
+/* ── Show chest and restore any already-unlocked slots ── */
+function showChest(){
+  const ch=$('rewardChest');if(!ch)return;
+  ch.style.display='block';
+  const state=getChestState();
+  // Slot 1: always auto-unlock
+  unlockSlot(1,slot1Content());
+  // Restore previously unlocked slots
+  if(state.s2)unlockSlot(2,slot2Content());
+  if(state.s3)unlockSlot(3,slot3Content());
+  if(state.s4){unlockSlot(4,slot4Content());extendCalendarSlider();}
+  if(state.s5)unlockSlot(5,slot5Content());
+}
+
+/* ── Hook share buttons to unlock slot 3 (card share) ── */
+const _origRevealReward=revealReward;
+// Patch waBtn and social share to also unlock slot 3
+['waBtn','twitterShareBtn','fbShareBtn','liShareBtn'].forEach(id=>{
+  const el=$(id);if(!el)return;
+  el.addEventListener('click',()=>setTimeout(()=>{
+    if($('rewardChest')&&$('rewardChest').style.display!=='none')
+      unlockSlot(3,slot3Content());
+  },600));
+});
+
+/* ── Hook site-share buttons to unlock slot 4 ── */
+['siteWaBtn','siteTwBtn','siteFbBtn','siteLiBtn'].forEach(id=>{
+  const el=$(id);if(!el)return;
+  el.addEventListener('click',()=>setTimeout(()=>{
+    if($('rewardChest')&&$('rewardChest').style.display!=='none'){
+      unlockSlot(4,slot4Content());extendCalendarSlider();
+    }
+  },600));
+});
+// Site copy link too
+const _origCopy=$('siteCopyConfirm');
+document.querySelector('[onclick*="siteCopyConfirm"]')?.addEventListener('click',()=>setTimeout(()=>{
+  if($('rewardChest')&&$('rewardChest').style.display!=='none'){
+    unlockSlot(4,slot4Content());extendCalendarSlider();
+  }
+},600));
+
+/* ── Floating badge: show after 18s or after results ── */
+let fbBadgeTimer=setTimeout(()=>$('fbBadge')&&$('fbBadge').classList.add('show'),18000);
+function showFbBadge(){clearTimeout(fbBadgeTimer);setTimeout(()=>$('fbBadge')&&$('fbBadge').classList.add('show'),3000);}
+
+/* ── Feedback panel ── */
+let fbRating=0;
+function openFeedback(){
+  if(localStorage.getItem('bsd_fb_done')){
+    // Already submitted — just show the chest
+    if($('rewardChest'))$('rewardChest').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  const ov=$('fbOverlay');if(!ov)return;
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeFeedback(){
+  const ov=$('fbOverlay');if(!ov)return;
+  ov.classList.remove('open');
+  document.body.style.overflow='';
+}
+function fbRate(n){
+  fbRating=n;
+  document.querySelectorAll('.fb-star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+  const ta=$('fbText');if(ta)ta.style.display='block';
+  const sb=$('fbSubmit');if(sb)sb.disabled=false;
+}
+function submitFeedback(){
+  if(!fbRating)return;
+  // Store feedback flag
+  try{localStorage.setItem('bsd_fb_done','1');localStorage.setItem('bsd_fb_rating',fbRating);}catch(e){}
+  // Hide form, show thanks
+  const ui=$('fbRatingUI');const ty=$('fbThanks');
+  if(ui)ui.style.display='none';if(ty)ty.style.display='block';
+  // Unlock slot 2
+  setTimeout(()=>{
+    unlockSlot(2,slot2Content());
+    if($('rewardChest'))$('rewardChest').scrollIntoView({behavior:'smooth',block:'nearest'});
+  },300);
+  // Auto-close panel after 2.2s
+  setTimeout(closeFeedback,2200);
+  // Hide badge (done)
+  const b=$('fbBadge');if(b){b.style.opacity='0';b.style.pointerEvents='none';}
+}
+// If feedback already submitted, reflect in UI immediately
+if(localStorage.getItem('bsd_fb_done')){
+  const b=$('fbBadge');if(b){b.style.display='none';}
+}
+
+/* ── Integrate with main calculate flow ── */
+// Patch checkMetonic or hook after results display
+const _origCheckMetonic=window.checkMetonic||function(){};
+window.checkMetonic=function(){_origCheckMetonic();showChest();showFbBadge();};
 
 /* ── Tooltip system (1.5 s hover delay) ── */
 (function(){
