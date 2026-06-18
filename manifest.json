@@ -1,6 +1,6 @@
 {
-  "name": "Birthstarday",
-  "short_name": "Birthstarday",
+  "name": "Birth Star Day",
+  "short_name": "BirthStarDay",
   "description": "Find your Indian birthday — Janma Tithi and Nakshatra for any year",
   "start_url": "/",
   "scope": "/",
