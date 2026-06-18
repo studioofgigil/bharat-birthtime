@@ -605,20 +605,19 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
         <button class="soc-btn soc-cp" id="copyLinkBtn">🔗 Copy link</button>
       </div>
 
-      <!-- calendar export with name -->
-      <div style="margin-top:14px;text-align:center">
-        <button class="btn ghost" id="icsBtn" style="font-size:14px">📅 Add to Calendar — next 12 years</button>
-        <div style="font-family:sans-serif;font-size:12px;color:var(--ink2);margin-top:6px;line-height:1.6">
-          Exports <strong>both Tithi &amp; Star birthdays for the next 12 years</strong> as a single .ics file.<br>
-          Each event includes a <strong>reminder the day before</strong> — so you never miss it.<br>
-          Works with Google Calendar, Apple Calendar, and Outlook.
-        </div>
-        <div id="icsNameBox">
-          <label>Whose birthday should the calendar events be named after?</label>
-          <div class="ics-row">
-            <input type="text" id="icsPersonName" placeholder="e.g. Priya Sharma" maxlength="40">
-            <button class="btn" id="icsConfirmBtn">Generate &amp; Download</button>
+      <!-- reward section: shown after sharing -->
+      <div id="shareReward" style="display:none;margin-top:20px;padding:18px 16px;background:linear-gradient(135deg,#f6fbf4 0%,#fffbe8 100%);border-radius:14px;border:1px solid var(--line);text-align:center">
+        <p style="font-family:sans-serif;font-size:15px;font-weight:700;color:var(--teal2);margin-bottom:4px">🎁 Thank you for sharing!</p>
+        <p style="font-family:sans-serif;font-size:13px;color:var(--ink2);margin-bottom:14px">Here's your free birthday calendar — a reminder the day before, every year.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:300px;margin:0 auto">
+          <input type="text" id="icsPersonName" placeholder="Your name (for calendar)" maxlength="40" style="width:100%;box-sizing:border-box;text-align:center">
+          <div style="font-family:sans-serif;font-size:13px;color:var(--ink);width:100%;text-align:left">
+            <label style="display:block;margin-bottom:6px;font-weight:600">Remind me for <span id="icsYearsLabel" style="color:var(--teal2)">5</span> year(s)</label>
+            <input type="range" id="icsYears" min="1" max="12" value="5" style="width:100%;accent-color:var(--teal)">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-top:2px"><span>1 yr</span><span>12 yrs</span></div>
           </div>
+          <button class="btn gold" id="icsDownloadBtn" style="width:100%;font-size:14px;padding:13px">📅 Download my birthday reminders</button>
+          <p style="font-family:sans-serif;font-size:11px;color:var(--ink2);margin:0;line-height:1.5">Works with Google Calendar, Apple Calendar &amp; Outlook<br>Each event includes a 1-day advance reminder 🔔</p>
         </div>
       </div>
 
@@ -1315,7 +1314,8 @@ function drawCard(){
   })();
   // Header text
   ctx.textAlign='center';
-  ctx.font='600 26px sans-serif';ctx.fillStyle='#cfe5da';ctx.fillText('I N D I A N   B I R T H D A Y   ·   '+LAST.year,W/2,218);
+  const _tdHead=LAST.tb.results[0];
+  ctx.font='600 26px sans-serif';ctx.fillStyle='#cfe5da';ctx.fillText('I N D I A N   B I R T H D A Y   ·   '+(_tdHead?_tdHead.year:LAST.year),W/2,218);
   const _MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   ctx.font='22px sans-serif';ctx.fillStyle='rgba(141,181,171,0.72)';
   ctx.fillText('Born  '+PROF.d+' '+_MOS[PROF.m-1]+' '+PROF.y+'  ·  Gregorian',W/2,260);
@@ -1338,8 +1338,36 @@ function drawCard(){
   ctx.fillText('Computed the Vedic way',W/2,H-44);
   $('cardPreview').src=cv.toDataURL('image/png');
 }
-function shareText(){const td=LAST.tb.results[0];const nd=LAST.nb.results;let t='🪔 My Indian birthday '+LAST.year+': '+(td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+(td?td.masaName:'')+' '+PROF.tithiLbl:'—');if(nd.length)t+='. ⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ')+' '+LAST.year;t+='. Find yours ✨ https://bharat-birthtime.pages.dev';return t}
-$('waBtn').addEventListener('click',async()=>{if(!LAST.tb)return;const text=shareText();try{const blob=await new Promise(res=>$('cardCanvas').toBlob(res,'image/png'));const file=new File([blob],'indian-birthday-'+LAST.year+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});return}}catch(e){if(e&&e.name==='AbortError')return}window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank')});
+function shareText(){
+  const td=LAST.tb.results[0];const nd=LAST.nb.results;
+  let t='🪔 My Indian birthday: ';
+  t+=td?fmt(td)+' ('+td.weekday+') — '+(PROF.masa.adhika?'Adhika ':'')+td.masaName+' '+PROF.tithiLbl:'—';
+  if(nd&&nd.length)t+='\n⭐ Star birthday ('+PROF.nakName+'): '+nd.map(fmtS).join(' & ');
+  t+='\n\nFind yours free — it takes 30 seconds 👇\nhttps://bharat-birthtime.pages.dev';
+  return t;
+}
+function revealReward(){
+  const r=$('shareReward');if(!r||r.style.display==='block')return;
+  r.style.display='block';
+  setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'nearest'}),120);
+  const sn=$('shareName').value.trim();
+  if(sn&&!$('icsPersonName').value)$('icsPersonName').value=sn;
+}
+$('waBtn').addEventListener('click',async()=>{
+  if(!LAST.tb)return;
+  const text=shareText();
+  let shared=false;
+  try{
+    const blob=await new Promise(res=>$('cardCanvas').toBlob(res,'image/png'));
+    const file=new File([blob],'indian-birthday.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],text});
+      shared=true;
+    }
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  if(!shared){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+  revealReward();
+});
 $('dlBtn').addEventListener('click',()=>{if(!LAST.tb)return;const a=document.createElement('a');a.download='indian-birthday-'+LAST.year+'.png';a.href=$('cardCanvas').toDataURL('image/png');a.click()});
 
 /* ── SVG helpers ── */
@@ -1644,7 +1672,7 @@ function checkMetonic(){
 }
 
 /* ── Calendar export (.ics) with name ── */
-function exportICS(personName){
+function exportICS(personName,years){
   if(!PROF||!LAST.tb)return;
   const name=personName||'';
   const namePrefix=name?name+' — ':'';
@@ -1654,7 +1682,7 @@ function exportICS(personName){
   ics+='X-WR-CALNAME:'+(name?name+"'s Indian Birthdays":'Indian Birthdays')+'\r\n';
   const alarm='\r\nBEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:Indian birthday tomorrow — ';
   const curYr=new Date().getFullYear();
-  for(let yr=curYr;yr<curYr+12;yr++){
+  for(let yr=curYr;yr<curYr+(years||12);yr++){
     const tb=tithiBday(PROF,yr,LAT,LON,ZONE);
     const nb=nakBday(PROF,yr,LAT,LON,ZONE);
     for(const r of tb.results){
@@ -1684,16 +1712,17 @@ function exportICS(personName){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=(name?name.replace(/\s+/g,'-').toLowerCase()+'-':'')+'indian-birthday.ics';a.click();
 }
-// ICS button: toggle name form
-$('icsBtn').addEventListener('click',()=>{
-  if(!LAST.tb){alert('Click "Reveal my Indian birthday →" first.');return}
-  const box=$('icsNameBox');
-  box.style.display=box.style.display==='block'?'none':'block';
-  if(box.style.display==='block')$('icsPersonName').focus();
+// Year slider label
+$('icsYears').addEventListener('input',()=>{$('icsYearsLabel').textContent=$('icsYears').value});
+// Reward download
+$('icsDownloadBtn').addEventListener('click',()=>{
+  if(!LAST.tb){alert('Generate your Indian birthday first.');return;}
+  exportICS($('icsPersonName').value.trim(),+$('icsYears').value);
 });
-$('icsConfirmBtn').addEventListener('click',()=>{
-  exportICS($('icsPersonName').value.trim());
-  $('icsNameBox').style.display='none';
+// Social share buttons → reveal reward
+['twitterShareBtn','fbShareBtn','liShareBtn','copyLinkBtn'].forEach(id=>{
+  const el=$(''+id);if(!el)return;
+  el.addEventListener('click',()=>setTimeout(revealReward,400));
 });
 
 /* ── Social sharing ── */
