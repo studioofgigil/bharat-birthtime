@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Janma Tithi Calculator — Find Your Hindu Lunar Birthday for Any Year</title>
+<meta name="description" content="Free Janma Tithi calculator: find your Hindu lunar birthday (tithi, paksha and lunar month) from your date of birth, for any year. Instant, private, runs in your browser, with calendar export.">
+<link rel="canonical" href="https://birthstarday.com/janma-tithi-calculator/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Janma Tithi Calculator — Find Your Hindu Lunar Birthday for Any Year">
+<meta property="og:description" content="Find your Hindu lunar birthday — your tithi, paksha and lunar month — for any year, free and private.">
+<meta property="og:url" content="https://birthstarday.com/janma-tithi-calculator/">
+<meta property="og:image" content="https://birthstarday.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Janma Tithi Calculator">
+<meta name="twitter:description" content="Find your Hindu lunar birthday — your tithi, paksha and lunar month — for any year, free and private.">
+<meta name="twitter:image" content="https://birthstarday.com/og-image.png">
+<link rel="icon" type="image/png" href="/favicon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "name": "Janma Tithi Calculator", "url": "https://birthstarday.com/janma-tithi-calculator/", "applicationCategory": "LifestyleApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://birthstarday.com/"}, {"@type": "ListItem", "position": 2, "name": "Janma Tithi Calculator", "item": "https://birthstarday.com/janma-tithi-calculator/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Janma Tithi the same as my rashi or nakshatra?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your Janma Tithi is the lunar day and fortnight of your birth. Your rashi is your Moon sign and your nakshatra is your birth star — the constellation the Moon occupied. This calculator gives you the tithi; the nakshatra finder gives you your star."}}, {"@type": "Question", "name": "Do I need my exact birth time for the tithi?", "acceptedAnswer": {"@type": "Answer", "text": "For most people a rough time is fine. A tithi lasts 20–26 hours, so any time within a few hours usually gives the same result. It only matters if you were born close to a tithi boundary, and the tool warns you when that is the case."}}, {"@type": "Question", "name": "Which calendar convention does this use?", "acceptedAnswer": {"@type": "Answer", "text": "It uses the Amanta (new-moon-ending) month convention standard in South and West India, with the Lahiri ayanamsa. A North-Indian Purnimanta month-name option is available for those born in the waning fortnight."}}]}]}</script>
+<style>:root{--ink:#15292b;--ink2:#4d6663;--bg:#eaf2f0;--card:#fff;--teal:#0e6f68;--teal2:#0a524d;--night:#06302e;--night2:#0d5a51;--gold:#e8b545;--gold2:#c2912a;--line:#d4e3df}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--ink);line-height:1.7}
+a{color:var(--teal2)}
+header{background:linear-gradient(140deg,var(--night),var(--night2) 55%,#147266);color:#eef7f2;padding:30px 20px 26px;text-align:center}
+header .om{font-size:26px;color:var(--gold)}
+header a.home{color:#eef7f2;text-decoration:none;font-size:14px;letter-spacing:.5px;opacity:.9}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 70px}
+.crumb{font-size:12.5px;color:var(--ink2);font-family:sans-serif;margin:18px 0 6px}
+.crumb a{color:var(--teal2);text-decoration:none}
+h1{font-size:clamp(26px,5vw,38px);font-weight:normal;color:var(--teal2);margin:6px 0 4px}
+.essence{font-style:italic;color:var(--ink2);font-size:17px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 2px 14px rgba(6,48,46,.07);margin-top:20px}
+h2{font-size:20px;color:var(--teal2);font-weight:normal;margin:0 0 10px}
+p{margin:0 0 12px}
+ol,ul{margin:0 0 12px 20px}
+li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:6px}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{color:var(--ink2);font-family:sans-serif;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+.cta{display:block;text-align:center;background:var(--teal);color:#fff;text-decoration:none;border-radius:10px;padding:15px 20px;font-family:sans-serif;font-weight:600;font-size:16px;margin-top:8px}
+.cta:hover{background:var(--teal2)}
+.q{font-weight:600;color:var(--teal2);margin-top:14px}
+.related{margin-top:22px;font-family:sans-serif;font-size:14px}
+.related a{display:inline-block;margin:4px 10px 4px 0;color:var(--teal2);text-decoration:none;border-bottom:1px dotted var(--line)}
+.note{background:#fcf3e0;border-left:4px solid #9a5b00;border-radius:6px;padding:10px 14px;margin-top:14px;font-size:13px;font-family:sans-serif;color:#6b4406}
+footer{text-align:center;font-family:sans-serif;font-size:12px;color:var(--ink2);padding:26px 18px}</style>
+</head>
+<body>
+<header>
+<div class="om">✦</div>
+<a class="home" href="/">Birth Star Day — find your Indian birthday</a>
+</header>
+<div class="wrap">
+<nav class="crumb"><a href="/">Home</a> › Janma Tithi Calculator</nav>
+<h1>Janma Tithi Calculator</h1>
+<p class="essence">Find your Hindu lunar birthday — your tithi, paksha and lunar month — for any year, free and private.</p>
+
+<div class="card">
+<h2>What is your Janma Tithi?</h2>
+<p>Your <strong>Janma Tithi</strong> is your Hindu lunar birthday — the lunar day (tithi) and fortnight (paksha) in the lunar month when you were born. Unlike your English birthday, which is fixed, your Janma Tithi falls on a different Gregorian date every year, exactly the way Diwali, Janmashtami and Rama Navami move. This is the day traditionally observed for janma-tithi puja, ayushya homa and milestone ceremonies.</p>
+<a class="cta" href="/#inputSection">🌙 Calculate my Janma Tithi for any year →</a>
+</div>
+<div class="card">
+<h2>How to find your Janma Tithi</h2>
+<ol>
+<li>Enter your Gregorian (English calendar) date of birth.</li>
+<li>Enter your approximate birth time — a 30-minute window is used around it.</li>
+<li>Pin your birth location so sunrise is computed accurately.</li>
+<li>The tool instantly shows your tithi, paksha and lunar month, plus the matching date for any year you choose, with a free calendar export.</li>
+</ol>
+<p>Everything runs in your browser — no account, and no birth data ever leaves your device.</p>
+</div>
+<div class="card">
+<h2>Why your Janma Tithi changes every year</h2>
+<p>A lunar year is about 354 days — roughly 11 days shorter than the 365-day solar year. So your tithi birthday drifts about 11 days earlier in the Gregorian calendar each year, until a leap month (Adhika Masa) every ~3 years pulls it back. Over 19 years (the Metonic cycle) it returns almost exactly to where it began.</p>
+<h2>The 30 tithis</h2>
+<table>
+<tr><th>Shukla Paksha (waxing)</th><th>Krishna Paksha (waning)</th></tr>
+<tr><td>Pratipada → Purnima (full moon)</td><td>Pratipada → Amavasya (new moon)</td></tr>
+</table>
+<p>Each fortnight runs Pratipada, Dwitiya, Tritiya, Chaturthi, Panchami, Shashthi, Saptami, Ashtami, Navami, Dashami, Ekadashi, Dwadashi, Trayodashi, Chaturdashi, and ends in Purnima (bright) or Amavasya (dark). Each tithi spans 12° of the Moon's angle from the Sun.</p>
+</div>
+
+<div class="card"><h2>Common questions</h2><p class="q">Is Janma Tithi the same as my rashi or nakshatra?</p><p>No. Your Janma Tithi is the lunar day and fortnight of your birth. Your rashi is your Moon sign and your nakshatra is your birth star — the constellation the Moon occupied. This calculator gives you the tithi; the nakshatra finder gives you your star.</p>
+<p class="q">Do I need my exact birth time for the tithi?</p><p>For most people a rough time is fine. A tithi lasts 20–26 hours, so any time within a few hours usually gives the same result. It only matters if you were born close to a tithi boundary, and the tool warns you when that is the case.</p>
+<p class="q">Which calendar convention does this use?</p><p>It uses the Amanta (new-moon-ending) month convention standard in South and West India, with the Lahiri ayanamsa. A North-Indian Purnimanta month-name option is available for those born in the waning fortnight.</p></div>
+<div class="card related"><h2>Related tools &amp; guides</h2><a href="/janma-tithi-calculator/">Janma Tithi Calculator</a><a href="/nakshatra-by-date-of-birth/">Nakshatra by Date of Birth</a><a href="/baby-name-by-nakshatra/">Baby Name by Nakshatra</a><a href="/nakshatra/">All 27 Nakshatras</a><a href="/">Indian Birthday Calculator (home)</a></div>
+</div>
+<footer>Birth Star Day · Lahiri ayanamsa · Amanta months · All computation in-browser · For ritual decisions confirm with your panchanga or purohit</footer>
+</body>
+</html>
