@@ -17,6 +17,71 @@
 <meta name="twitter:title" content="Birth Star Day — Find Your Indian Birthday">
 <meta name="twitter:description" content="The day the Sun and Moon return to the alignment of your birth. Tithi + Nakshatra methods. Free, all computation in browser.">
 <meta name="twitter:image" content="https://birthstarday.com/og-image.png">
+<link rel="canonical" href="https://birthstarday.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="keywords" content="Indian birthday, Janma Tithi, Janma Nakshatra, birth star, tithi calculator, nakshatra calculator, Hindu birthday, lunar birthday, panchanga, Vedic birthday">
+<!-- Structured data for search engines -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Birth Star Day",
+      "url": "https://birthstarday.com/",
+      "description": "Free tool to find your Indian astrological birthday — your Janma Tithi (lunar date) and Janma Nakshatra (birth star) for any year. All computation runs privately in your browser.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires JavaScript",
+      "inLanguage": "en",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+      "featureList": "Janma Tithi calculator, Janma Nakshatra calculator, 10-year birthday calendar export, naming syllables, Vimshottari Dasha, browser reminders",
+      "publisher": { "@type": "Organization", "name": "Studio of Gigil", "url": "https://birthstarday.com/" }
+    },
+    {
+      "@type": "HowTo",
+      "name": "How to find your Indian astrological birthday",
+      "description": "Convert your Gregorian birthday to your Janma Tithi and Janma Nakshatra (Indian astrological birthday) for any year.",
+      "step": [
+        { "@type": "HowToStep", "position": 1, "name": "Enter birth date", "text": "Enter your Gregorian (English calendar) birth date." },
+        { "@type": "HowToStep", "position": 2, "name": "Enter birth time", "text": "Enter your approximate birth time; a 30-minute window is used around it." },
+        { "@type": "HowToStep", "position": 3, "name": "Enter birth location", "text": "Search for or pin your birth location on the map for an accurate sunrise calculation." },
+        { "@type": "HowToStep", "position": 4, "name": "Reveal your Indian birthday", "text": "The tool instantly shows your Janma Tithi and Janma Nakshatra birthday for any chosen year, with a calendar export and shareable card." }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why does my Indian birthday move every year in the English calendar?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A lunar year is about 354 days — roughly 11 days shorter than the solar year — so your tithi birthday drifts about 11 days earlier in the Gregorian calendar each year. After about 3 years a leap month (Adhika Masa) is inserted, pulling it forward again. It is the same reason Eid, Diwali and Easter all move relative to the Gregorian calendar." }
+        },
+        {
+          "@type": "Question",
+          "name": "Tithi birthday or Star birthday — which should I observe?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends on your regional and family tradition. North and West India predominantly observe the Tithi birthday; South India observes the Nakshatra (Star) birthday. Both are rooted in the same panchanga system. Follow the day your family does puja, or observe both." }
+        },
+        {
+          "@type": "Question",
+          "name": "I don't know my exact birth time — how much does it matter?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For most people birth time only matters if you were born near a tithi boundary. A tithi lasts 20–26 hours, so for the majority of births any time within a ±3 hour window gives the same result. The tool warns you if your time is near a boundary." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this the same as my Western astrology horoscope?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Western astrology uses the tropical zodiac and focuses on the Sun sign. Indian Jyotisha uses the sidereal zodiac and centres on the Moon sign and birth nakshatra. This page computes the panchanga (the calendar dimension of Jyotisha), not a full birth chart." }
+        },
+        {
+          "@type": "Question",
+          "name": "How accurate is this calculation?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For dates from about 1900 to 2099 the result is accurate to within one tithi for the vast majority of births. The Moon position uses the 57-term Meeus series and the Lahiri ayanamsa (India's national standard); sunrise uses a NOAA algorithm accurate to 1–2 minutes. For births within ~30 minutes of a boundary a one-unit uncertainty remains." }
+        }
+      ]
+    }
+  ]
+}
+</script>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d5a51">
@@ -458,6 +523,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
   <a href="#results">📋 My Birthday</a>
   <a href="#learnWhat">✦ Why it matters</a>
   <a href="#faqSection">❓ FAQ</a>
+  <a href="/nakshatra/">⭐ 27 Stars</a>
   <a href="#newsletterSection">📬 Subscribe</a>
   <a href="#contactSection">✉ Contact</a>
 </nav>
@@ -499,7 +565,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
 
   <!-- HERO INTRO -->
   <section class="card" style="text-align:center;padding:32px 24px 28px">
-    <h1 style="font-size:clamp(22px,4vw,34px);font-weight:normal;color:var(--teal2);margin-bottom:10px;line-height:1.3">Your birthday, the Indian way 🌙</h1>
+    <h2 style="font-size:clamp(22px,4vw,34px);font-weight:normal;color:var(--teal2);margin-bottom:10px;line-height:1.3">Your birthday, the Indian way 🌙</h2>
     <p style="font-family:sans-serif;font-size:15px;color:var(--ink2);max-width:560px;margin:0 auto 14px;line-height:1.7">The Indian calendar doesn't track Earth's orbit — it tracks the <strong>Moon</strong>. Your real Indian birthday (Janma Tithi &amp; Nakshatra) lands on a different English date every year, just like Diwali and Janmashtami do.</p>
     <p style="font-family:sans-serif;font-size:14px;color:var(--ink2);max-width:520px;margin:0 auto">👇 Enter your birth date, time, and location below — the tool will instantly show your Indian birthday for any year, with a calendar export and a shareable card.</p>
     <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
@@ -790,6 +856,7 @@ footer{text-align:center;color:var(--ink2);font-size:12.5px;padding:26px 16px;
     <p style="font-size:12px;color:var(--ink2);font-family:sans-serif;text-align:center;margin-bottom:14px">The Moon's visible shape through the 30 tithis — your janma tithi is the phase at your birth</p>
 
     <p><strong><span data-tip="Nakshatra = lunar mansion. One of 27 star-clusters the Moon passes through. The full zodiac (360°) divided into 27 equal segments of 13°20′. The Moon spends roughly one day in each, completing the full cycle in ~27.3 days.">Nakshatra</span> — the Moon's star field.</strong> The <span data-tip="Sidereal zodiac: measured against fixed stars, unlike the tropical zodiac (which is measured from the Sun's equinox position). Indian astrology (Jyotisha) uses sidereal positions. The difference between tropical and sidereal is the ayanamsa (~24° currently).">sidereal</span> zodiac is divided into 27 nakshatras of 13°20′ each. Each nakshatra has 4 <span data-tip="Pada = quarter. Each nakshatra divides into 4 padas of 3°20′ each (108 total across the zodiac). The pada determines naming syllables and adds detail to the jyotisha birth chart.">padas</span>. The Moon spends roughly one day in each. Your star birthday is the day your janma nakshatra recurs while the Sun is in your birth sidereal solar month.</p>
+    <p style="margin-top:10px"><a href="/nakshatra/" style="color:var(--teal2);font-weight:600">Explore all 27 nakshatras →</a> — each star's deity, ruling planet, symbol and naming syllables.</p>
 
     <!-- nakshatra wheel -->
     <figure class="viz">
